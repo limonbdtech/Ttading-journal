@@ -107,7 +107,8 @@ export default function TradingJournal() {
     });
   };
 
-  // Submit to Google Sheet
+  /*
+    // Submit to Google Sheet
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isTradeQualified) return;
@@ -150,6 +151,54 @@ export default function TradingJournal() {
       setLoading(false);
     }
   };
+
+  */
+
+
+    // Submit to Google Sheet
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!isTradeQualified) return;
+
+    setLoading(true);
+
+    const payload = {
+      timestamp: new Date().toLocaleString(),
+      preMarketBias: formData.htfBias,
+      preMarketReasons: formData.reasons.join(', '),
+      mentallyReady: formData.sessionChecks.mentallyReady ? 'YES' : 'NO',
+      htfNarrative: formData.stage1.narrative,
+      premiumDiscount: formData.stage1.pdArray.join(', '),
+      htfPdArray: formData.stage1.htfPdArray.join(', '),
+      stage1SSMT: formData.stage2.ssmt.join(', '),
+      pspHtf: formData.stage2.pspHtf.join(', '),
+      cleanTargets: formData.stage2.cleanTargets.join(', '),
+      ssmt90m: formData.stage3.ssmt90m ? 'YES' : 'NO',
+      entryWindow: formData.stage3.entryWindow ? 'YES' : 'NO',
+      manipulation930: formData.stage3.manipulation ? 'YES' : 'NO',
+      psp5m: formData.stage3.psp5m ? 'YES' : 'NO',
+      entryTechnique5m: formData.stage3.entryTechnique5m ? 'YES' : 'NO',
+      riskPassed: isRiskPassed ? 'PASSED' : 'FAILED',
+      journalNotes: formData.journalNotes
+    };
+
+    try {
+      await fetch(googleScriptUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+
+      alert("🎉 Trade Execution Journaled Successfully!");
+      setFormData(INITIAL_STATE);
+    } catch (err) {
+      alert("❌ Failed to save trade data.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
 
   return (
     <div style={{ maxWidth: '850px', margin: '0 auto', padding: '20px', fontFamily: 'Arial, sans-serif' }}>
