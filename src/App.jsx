@@ -11,16 +11,16 @@ const INITIAL_STATE = {
     htfPdArray: []
   },
   stage2: { 
-    stage1Smt: [],  // Stage 2: MC SMT, WC SMT, DC SMT, 90M SMT
-    psp: [],        // HTF PSP (4H PSP, 1D PSP)
-    cleanTargets: []// Clean Target
+    stage1Smt: [],  
+    psp: [],        
+    cleanTargets: []
   },
   stage3: {
-    stage2Smt: [],  // Stage 3 SMT
-    ltfPsp: [],     // LTF PSP (1H PSP, M15 PSP, M5 PSP)
-    entryMechanics: [], // Entry Mechanics
+    stage2Smt: [],  
+    ltfPsp: [],     
+    entryMechanics: [], 
     riskManagement: {
-      riskLimit: '', // '0.5%' or '1%'
+      riskLimit: '', 
       stopLossDefined: false,
       targetRatio: false,
       partialsTarget: false
@@ -29,7 +29,6 @@ const INITIAL_STATE = {
   journalNotes: ''
 };
 
-// 📜 GOOGLE APPS SCRIPT CODE FOR USER
 const GOOGLE_SCRIPT_CODE = `function doPost(e) {
   try {
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
@@ -92,7 +91,6 @@ export default function TradingJournal() {
     return savedTheme ? savedTheme === 'dark' : true;
   });
 
-  // Load Google Script URL
   useEffect(() => {
     const savedUrl = localStorage.getItem('user_google_script_url');
     if (savedUrl) setGoogleScriptUrl(savedUrl);
@@ -114,9 +112,7 @@ export default function TradingJournal() {
     localStorage.setItem('user_google_script_url', url);
   };
 
-  const closeGuideModal = () => {
-    setShowGuideModal(false);
-  };
+  const closeGuideModal = () => setShowGuideModal(false);
 
   const copyScriptCode = () => {
     navigator.clipboard.writeText(GOOGLE_SCRIPT_CODE);
@@ -124,23 +120,14 @@ export default function TradingJournal() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // ----------------------------------------------------
-  // ⚙️ SMT MAPPING (Stage 2 -> Stage 3)
-  // ----------------------------------------------------
   const smtMapping = {
     'WC SMT': 'WC SMT',
     'DC SMT': 'DC SMT',
     '90M SMT': '90M SMT'
   };
 
-  // ----------------------------------------------------
-  // 📐 DYNAMIC SMT STAGE LABELS & COUNTS
-  // ----------------------------------------------------
   const stage2SmtCount = formData.stage2.stage1Smt.length;
-
-  const stage2BoxLabel = stage2SmtCount > 1 
-    ? `${stage2SmtCount} Stage SMT` 
-    : '1 Stage SMT';
+  const stage2BoxLabel = stage2SmtCount > 1 ? `${stage2SmtCount} Stage SMT` : '1 Stage SMT';
 
   const getOrdinalSuffix = (n) => {
     const s = ["th", "st", "nd", "rd"];
@@ -173,9 +160,6 @@ export default function TradingJournal() {
     });
   };
 
-  // ----------------------------------------------------
-  // 🔒 SYSTEM LOGIC & LOCK UNLOCK CONDITIONS
-  // ----------------------------------------------------
   const isStage1Complete = 
     formData.stage1.narrative !== '' && 
     formData.stage1.pdArray.length > 0 && 
@@ -276,13 +260,15 @@ export default function TradingJournal() {
     try {
       await fetch(googleScriptUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
 
       alert("🎉 Trade Execution Journaled Successfully!");
       setFormData(INITIAL_STATE);
     } catch (err) {
+      console.error(err);
       alert("❌ Failed to save trade data.");
     } finally {
       setLoading(false);
@@ -300,8 +286,6 @@ export default function TradingJournal() {
 
   return (
     <div className="journal-container">
-      
-      {/* 🎨 ALL REQUIRED STYLES EMBEDDED DIRECTLY */}
       <style>{`
         .custom-option.active-synced {
           background: linear-gradient(135deg, #0284c7 0%, #0d9488 100%) !important;
@@ -318,182 +302,52 @@ export default function TradingJournal() {
           font-weight: bold;
           letter-spacing: 0.5px;
         }
-        
-        /* 📖 FULLY RESPONSIVE LARGE MODAL POPUP STYLES */
         .modal-overlay {
           position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
+          top: 0; left: 0; right: 0; bottom: 0;
           background: rgba(0, 0, 0, 0.85);
           backdrop-filter: blur(8px);
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          z-index: 99999;
-          padding: 20px;
+          display: flex; justifyContent: center; align-items: center;
+          z-index: 99999; padding: 20px;
         }
         .modal-card {
-          background: #0f172a;
-          color: #f8fafc;
-          border: 1px solid #334155;
-          border-radius: 16px;
-          max-width: 900px;
-          width: 95%;
-          max-height: 88vh;
-          overflow-y: auto;
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85);
-          padding: 32px;
-          box-sizing: border-box;
+          background: #0f172a; color: #f8fafc;
+          border: 1px solid #334155; border-radius: 16px;
+          max-width: 900px; width: 95%; max-height: 88vh;
+          overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85);
+          padding: 32px; box-sizing: border-box;
         }
         .modal-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          border-bottom: 2px solid #334155;
-          padding-bottom: 16px;
-          margin-bottom: 24px;
+          display: flex; justify-content: space-between; align-items: center;
+          border-bottom: 2px solid #334155; padding-bottom: 16px; margin-bottom: 24px;
         }
-        .modal-title {
-          font-size: 1.5rem;
-          font-weight: 800;
-          color: #38bdf8;
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
+        .modal-title { font-size: 1.5rem; font-weight: 800; color: #38bdf8; display: flex; align-items: center; gap: 10px; }
         .close-btn {
-          background: #1e293b;
-          border: 1px solid #475569;
-          color: #94a3b8;
-          font-size: 1.5rem;
-          cursor: pointer;
-          line-height: 1;
-          width: 38px;
-          height: 38px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.2s;
-          flex-shrink: 0;
+          background: #1e293b; border: 1px solid #475569; color: #94a3b8;
+          font-size: 1.5rem; cursor: pointer; line-height: 1; width: 38px; height: 38px;
+          border-radius: 50%; display: flex; align-items: center; justify-content: center;
+          transition: all 0.2s; flex-shrink: 0;
         }
-        .close-btn:hover {
-          color: #ffffff;
-          background: #ef4444;
-          border-color: #ef4444;
-        }
-        .guide-step {
-          background: #1e293b;
-          border-left: 5px solid #38bdf8;
-          padding: 18px 22px;
-          border-radius: 0 12px 12px 0;
-          margin-bottom: 18px;
-        }
-        .guide-step h4 {
-          margin: 0 0 10px 0;
-          color: #f8fafc;
-          font-size: 1.15rem;
-          font-weight: 700;
-        }
-        .guide-step p, .guide-step ol {
-          margin: 0;
-          font-size: 0.98rem;
-          color: #cbd5e1;
-          line-height: 1.65;
-        }
-        .guide-step ol {
-          padding-left: 20px;
-        }
-        .code-box-wrapper {
-          position: relative;
-          margin-top: 12px;
-          background: #020617;
-          border: 1px solid #334155;
-          border-radius: 8px;
-          overflow: hidden;
-        }
-        .code-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          background: #0f172a;
-          padding: 10px 16px;
-          border-bottom: 1px solid #1e293b;
-          font-size: 0.85rem;
-          color: #94a3b8;
-          font-weight: bold;
-        }
-        .copy-btn {
-          background: #0284c7;
-          color: white;
-          border: none;
-          padding: 6px 14px;
-          border-radius: 6px;
-          font-size: 0.8rem;
-          cursor: pointer;
-          font-weight: bold;
-          transition: background 0.2s;
-        }
-        .copy-btn:hover {
-          background: #0369a1;
-        }
-        .code-content {
-          padding: 14px;
-          margin: 0;
-          font-family: monospace;
-          font-size: 0.85rem;
-          color: #38bdf8;
-          max-height: 220px;
-          overflow-y: auto;
-          white-space: pre-wrap;
-          word-break: break-all;
-        }
-        .guide-trigger-btn {
-          background: #0284c7;
-          color: white;
-          border: none;
-          padding: 8px 16px;
-          border-radius: 8px;
-          font-size: 0.9rem;
-          font-weight: bold;
-          cursor: pointer;
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
-          transition: background 0.2s;
-        }
-        .guide-trigger-btn:hover {
-          background: #0369a1;
-        }
-
+        .close-btn:hover { color: #ffffff; background: #ef4444; border-color: #ef4444; }
+        .guide-step { background: #1e293b; border-left: 5px solid #38bdf8; padding: 18px 22px; border-radius: 0 12px 12px 0; margin-bottom: 18px; }
+        .guide-step h4 { margin: 0 0 10px 0; color: #f8fafc; font-size: 1.15rem; font-weight: 700; }
+        .guide-step p, .guide-step ol { margin: 0; font-size: 0.98rem; color: #cbd5e1; line-height: 1.65; }
+        .guide-step ol { padding-left: 20px; }
+        .code-box-wrapper { position: relative; margin-top: 12px; background: #020617; border: 1px solid #334155; border-radius: 8px; overflow: hidden; }
+        .code-header { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 10px 16px; border-bottom: 1px solid #1e293b; font-size: 0.85rem; color: #94a3b8; font-weight: bold; }
+        .copy-btn { background: #0284c7; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: bold; transition: background 0.2s; }
+        .copy-btn:hover { background: #0369a1; }
+        .code-content { padding: 14px; margin: 0; font-family: monospace; font-size: 0.85rem; color: #38bdf8; max-height: 220px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; }
+        .guide-trigger-btn { background: #0284c7; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2); transition: background 0.2s; }
+        .guide-trigger-btn:hover { background: #0369a1; }
         @media (max-width: 640px) {
-          .modal-overlay {
-            padding: 10px;
-          }
-          .modal-card {
-            padding: 20px 16px;
-            max-height: 92vh;
-            border-radius: 12px;
-          }
-          .modal-title {
-            font-size: 1.15rem;
-          }
-          .guide-step {
-            padding: 14px 14px;
-          }
-          .guide-step h4 {
-            font-size: 1rem;
-          }
-          .guide-step p, .guide-step ol {
-            font-size: 0.88rem;
-          }
-          .code-content {
-            font-size: 0.75rem;
-            max-height: 180px;
-          }
+          .modal-overlay { padding: 10px; }
+          .modal-card { padding: 20px 16px; max-height: 92vh; border-radius: 12px; }
+          .modal-title { font-size: 1.15rem; }
+          .guide-step { padding: 14px 14px; }
+          .guide-step h4 { font-size: 1rem; }
+          .guide-step p, .guide-step ol { font-size: 0.88rem; }
+          .code-content { font-size: 0.75rem; max-height: 180px; }
         }
       `}</style>
 
@@ -501,7 +355,7 @@ export default function TradingJournal() {
       <header className="app-header">
         <div>
           <h1 className="app-title">⚡ MECHANICAL TRADING JOURNAL</h1>
-          <p className="app-subtitle">ICT Systematic Execution & Discipline Verification</p>
+          <p className="app-subtitle">ICT / SMC Systematic Execution & Discipline Verification</p>
         </div>
         <div className="header-actions">
           <button type="button" onClick={() => setShowGuideModal(true)} className="guide-trigger-btn">
@@ -516,7 +370,7 @@ export default function TradingJournal() {
         </div>
       </header>
 
-      {/* 📖 LARGE RESPONSIVE GUIDE POPUP MODAL */}
+      {/* GUIDE POPUP MODAL */}
       {showGuideModal && (
         <div className="modal-overlay" onClick={closeGuideModal}>
           <div className="modal-card" onClick={e => e.stopPropagation()}>
@@ -551,49 +405,13 @@ export default function TradingJournal() {
                   <li><b>Deploy</b> এ চাপ দিয়ে পারমিশন Allow করে দিন এবং প্রাপ্ত <b>Web app URL</b> টি কপি করে অ্যাপের ইনপুট বক্সে পেস্ট করুন।</li>
                 </ol>
               </div>
-
-              <div className="guide-step">
-                <h4>1️⃣ Pre-Market Setup & Session Readiness</h4>
-                <p>
-                  Pre-Market Bias সিলেক্ট করুন এবং মানসিক প্রস্তুতি নিশ্চিত করতে <b>Mentally Ready</b> চেক বক্সে টিক দিন।
-                </p>
-              </div>
-
-              <div className="guide-step">
-                <h4>2️⃣ Stage 1 & Stage 2 (Market Alignment)</h4>
-                <p>
-                  Stage 1 সম্পূর্ণ করার পরেই কেবল Stage 2 আনলক হবে। Stage 2-তে কোনো SMT নির্বাচন করলে তা অটোমেটিকভাবে Stage 3-তে <b>AUTO</b> ট্যাগসহ সিঙ্ক হয়ে যাবে।
-                </p>
-              </div>
-
-              <div className="guide-step">
-                <h4>3️⃣ Dynamic SMT Level Calculation</h4>
-                <p>
-                  সক্রিয় SMT এর উপর ভিত্তি করে সিস্টেম অটোমেটিকভাবে লেবেল পরিবর্তন করবে (যেমন: <b>1 Stage SMT</b>, <b>2nd Stage SMT</b>, <b>3rd Stage SMT</b>)।
-                </p>
-              </div>
-
-              <div className="guide-step">
-                <h4>4️⃣ Mechanics & Mandatory Risk Lock</h4>
-                <p>
-                  ট্রেড এক্সিকিউট করতে অবশ্যই অন্তত 2 টি <b>SMT</b>, <b>Entry Mechanics</b> এবং <b>Risk Limit (0.5% / 1%)</b> পূরণ করতে হবে।
-                </p>
-              </div>
             </div>
 
             <button 
               onClick={closeGuideModal}
               style={{
-                width: '100%',
-                padding: '14px',
-                background: '#0d9488',
-                color: 'white',
-                border: 'none',
-                borderRadius: '10px',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                fontSize: '1rem',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.3)'
+                width: '100%', padding: '14px', background: '#0d9488', color: 'white',
+                border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem'
               }}
             >
               বন্ধ করুন (Close Guide)
@@ -724,7 +542,6 @@ export default function TradingJournal() {
           <div className={`card ${!isStage1Complete ? 'disabled-stage' : ''}`}>
             <h2 className="card-title">2️⃣ STAGE 2: Market Alignment</h2>
             
-            {/* 1 STAGE SMT */}
             <span className="label-title">🏛️ {stage2BoxLabel.toUpperCase()}</span>
             <div className="grid-2" style={{ marginBottom: '12px' }}>
               {['MC SMT', 'WC SMT', 'DC SMT', '90M SMT'].map(item => (
@@ -738,7 +555,6 @@ export default function TradingJournal() {
               ))}
             </div>
 
-            {/* HTF PSP - UPDATED OPTIONS */}
             <span className="label-title">🕰️ HTF PSP</span>
             <div className="grid-2" style={{ marginBottom: '12px' }}>
               {['4H PSP', '1D PSP'].map(item => (
@@ -752,7 +568,6 @@ export default function TradingJournal() {
               ))}
             </div>
 
-            {/* CLEAN TARGETS */}
             <span className="label-title">✅ CLEAN TARGETS</span>
             <div className="grid-2">
               {['PDH/PDL', 'Internal liquidity'].map(item => (
@@ -774,7 +589,6 @@ export default function TradingJournal() {
           <h2 className="card-title">3️⃣ STAGE 3: Alignment Verification & Execution Mechanics</h2>
           
           <div className="grid-2" style={{ marginBottom: '20px' }}>
-            {/* STAGE 3 SMT */}
             <div>
               <span className="label-title">⚡ {stage3BoxLabel.toUpperCase()}</span>
               <div className="grid-2">
@@ -797,7 +611,6 @@ export default function TradingJournal() {
               </div>
             </div>
 
-            {/* LTF PSP - UPDATED OPTIONS */}
             <div>
               <span className="label-title">📍 LTF PSP</span>
               <div className="grid-3">
@@ -817,7 +630,6 @@ export default function TradingJournal() {
           <hr style={{ borderColor: 'var(--border-color)', marginBottom: '20px' }} />
 
           <div className="grid-2">
-            {/* ENTRY MECHANICS */}
             <div className={!isEntryMechanicsUnlocked ? 'disabled-stage' : ''}>
               <span className="label-title">
                 🔑 ENTRY MECHANICS (Select at least 1) {!isEntryMechanicsUnlocked && '🔒'}
@@ -837,13 +649,11 @@ export default function TradingJournal() {
               </div>
             </div>
 
-            {/* RISK MANAGEMENT */}
             <div className={!isRiskManagementUnlocked ? 'disabled-stage' : ''}>
               <span className="label-title">
                 🛡️ RISK MANAGEMENT {!isRiskManagementUnlocked && '🔒'}
               </span>
 
-              {/* RISK LIMIT */}
               <span className="label-title" style={{ marginTop: '8px' }}>RISK LIMIT (MANDATORY - CHOOSE 1)</span>
               <div className="grid-2" style={{ marginBottom: '12px' }}>
                 {['0.5%', '1%'].map(limit => (
@@ -858,7 +668,6 @@ export default function TradingJournal() {
                 ))}
               </div>
 
-              {/* CHECKS */}
               <div className="checkbox-group">
                 <label className="checkbox-row">
                   <input 
