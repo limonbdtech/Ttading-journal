@@ -1,54 +1,31 @@
 import React, { useState, useEffect } from 'react';
 
 const INITIAL_STATE = {
-  // Pre market Analysis
   newsEvent: '',
   htfBias: '',
   reasons: [],
-
-  // Market session readiness
-  sessionChecks: {
-    mentallyReady: false
-  },
-
-  // 1st Stage
-  stage1: {
-    narrative: '', // Bullish / Bearish
-    pdArray: [], // PDH, PSH, PDL, PSL
-    htfPdArray: [] // 1H FVG, 4H FVG, NWOG/NDOG
-  },
-
-  // 2nd Stage
-  stage2: {
-    ssmt: [], // WC SSMT, DC SSMT
-    pspHtf: [], // 4H PSP 2:00, 1H PSP 7-8, No PSP
-    cleanTargets: [] // PDH/PDL, Internal liquidity
-  },
-
-  // 3rd Stage
+  sessionChecks: { mentallyReady: false },
+  stage1: { narrative: '', pdArray: [], htfPdArray: [] },
+  stage2: { ssmt: [], pspHtf: [], cleanTargets: [] },
   stage3: {
-    ssmt90m: false, // ⏱️ 90M SSMT Q2-Q3
-    entryWindow: false, // 🚪 Entry 9:30 - 9:50
-    manipulation: false, // 🧨 Manipulation 9:30
-    psp5m: false, // 📍 5M PSP 9:30
-    entryTechnique5m: false, // 🎛️ 5M ENTRY TECHNIQUE
+    ssmt90m: false,
+    entryWindow: false,
+    manipulation: false,
+    psp5m: false,
+    entryTechnique5m: false,
     riskManagement: {
-      onePercent: false, // 1%
-      stopLossDefined: false, // Stop loss Above/Below 90min high/low
-      targetRatio: false, // Target objective 1/2
-      partialsTarget: false // Partials targeting 1/4
+      onePercent: false,
+      stopLossDefined: false,
+      targetRatio: false,
+      partialsTarget: false
     }
   },
-
-  // Post Market Notes
   journalNotes: ''
 };
 
 export default function TradingJournal() {
   const [formData, setFormData] = useState(INITIAL_STATE);
   const [loading, setLoading] = useState(false);
-  
-  // Dynamic Google Script URL (Saved in localStorage)
   const [googleScriptUrl, setGoogleScriptUrl] = useState('');
 
   useEffect(() => {
@@ -61,8 +38,7 @@ export default function TradingJournal() {
     localStorage.setItem('user_google_script_url', url);
   };
 
-  // --- LOGIC CHECKS FOR SYSTEM ENFORCEMENT ---
-
+  // LOGIC CHECKS
   const isStage1Complete = 
     formData.stage1.narrative !== '' && 
     formData.stage1.pdArray.length > 0 && 
@@ -80,7 +56,6 @@ export default function TradingJournal() {
     formData.stage3.riskManagement.targetRatio &&
     formData.stage3.riskManagement.partialsTarget;
 
-  // SYSTEM QUALIFICATION GATE
   const isTradeQualified = 
     formData.htfBias !== '' &&
     formData.sessionChecks.mentallyReady &&
@@ -107,55 +82,6 @@ export default function TradingJournal() {
     });
   };
 
-  /*
-    // Submit to Google Sheet
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!isTradeQualified) return;
-
-    setLoading(true);
-
-    const payload = {
-      timestamp: new Date().toLocaleString(),
-      preMarketBias: formData.htfBias,
-      preMarketReasons: formData.reasons.join(', '),
-      mentallyReady: formData.sessionChecks.mentallyReady ? 'YES' : 'NO',
-      htfNarrative: formData.stage1.narrative,
-      premiumDiscount: formData.stage1.pdArray.join(', '),
-      htfPdArray: formData.stage1.htfPdArray.join(', '),
-      stage1SSMT: formData.stage2.ssmt.join(', '),
-      pspHtf: formData.stage2.pspHtf.join(', '),
-      cleanTargets: formData.stage2.cleanTargets.join(', '),
-      ssmt90m: formData.stage3.ssmt90m ? 'YES' : 'NO',
-      entryWindow: formData.stage3.entryWindow ? 'YES' : 'NO',
-      manipulation930: formData.stage3.manipulation ? 'YES' : 'NO',
-      psp5m: formData.stage3.psp5m ? 'YES' : 'NO',
-      entryTechnique5m: formData.stage3.entryTechnique5m ? 'YES' : 'NO',
-      riskPassed: isRiskPassed ? 'PASSED' : 'FAILED',
-      journalNotes: formData.journalNotes
-    };
-
-    try {
-      await fetch(googleScriptUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        mode: 'no-cors',
-        body: JSON.stringify(payload)
-      });
-
-      alert("🎉 Trade Execution Journaled Successfully!");
-      setFormData(INITIAL_STATE);
-    } catch (err) {
-      alert("❌ Failed to save trade data.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  */
-
-
-    // Submit to Google Sheet
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isTradeQualified) return;
@@ -198,324 +124,267 @@ export default function TradingJournal() {
     }
   };
 
-
-
   return (
-    <div style={{ maxWidth: '850px', margin: '0 auto', padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <h1 style={{ textAlign: 'center' }}>🧠 Daily Trading Journal</h1>
+    <div className="journal-container">
+      
+      {/* HEADER */}
+      <header className="app-header">
+        <div>
+          <h1 className="app-title">⚡ MECHANICAL TRADING JOURNAL</h1>
+          <p className="app-subtitle">ICT / SMC Systematic Execution & Discipline Verification</p>
+        </div>
+        <div className={`status-badge ${isTradeQualified ? 'verified' : 'locked'}`}>
+          {isTradeQualified ? "✅ SYSTEM VERIFIED: TRADE ALLOWED" : "🚫 DISCIPLINE LOCK ACTIVE"}
+        </div>
+      </header>
 
-      {/* WEBHOOK URL SETTINGS */}
-      <div style={{ background: '#f8f9fa', padding: '15px', borderRadius: '8px', border: '1px solid #ddd', marginBottom: '20px' }}>
-        <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>
-          ⚙️ Target Google Sheet Webhook URL:
-        </label>
+      {/* WEBHOOK INPUT */}
+      <div className="card">
+        <label className="label-title">⚙️ TARGET GOOGLE SHEET WEBHOOK URL</label>
         <input 
           type="text" 
           placeholder="Paste your Google Apps Script Web App URL here..." 
           value={googleScriptUrl}
           onChange={(e) => handleSaveUrl(e.target.value)}
-          style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
+          className="text-input"
         />
-        {!googleScriptUrl && (
-          <small style={{ color: 'red', display: 'block', marginTop: '5px' }}>
-            ⚠️ Enter your Google Apps Script URL above to enable submission.
-          </small>
-        )}
-      </div>
-
-      {/* STATUS INDICATOR */}
-      <div style={{
-        padding: '12px',
-        borderRadius: '6px',
-        textAlign: 'center',
-        fontWeight: 'bold',
-        marginBottom: '20px',
-        color: '#fff',
-        backgroundColor: isTradeQualified ? '#28a745' : '#dc3545'
-      }}>
-        {isTradeQualified ? "✅ SYSTEM VERIFIED: TRADE ALLOWED" : "🚫 DISCIPLINE LOCK: COMPLETE REQUIRED STEPS & SET URL"}
       </div>
 
       <form onSubmit={handleSubmit}>
-        
-        {/* PRE MARKET ANALYSIS */}
-        <fieldset style={sectionStyle}>
-          <legend style={legendStyle}>📋 Pre Market Analysis</legend>
-          
-          <label><b>HTF Bias:</b></label>
-          <div style={{ margin: '8px 0' }}>
-            <label style={{ marginRight: '15px' }}>
-              <input 
-                type="radio" 
-                name="bias" 
-                value="Bullish" 
-                checked={formData.htfBias === 'Bullish'} 
-                onChange={() => setFormData({...formData, htfBias: 'Bullish'})} 
-              /> Bullish
-            </label>
-            <label>
-              <input 
-                type="radio" 
-                name="bias" 
-                value="Bearish" 
-                checked={formData.htfBias === 'Bearish'} 
-                onChange={() => setFormData({...formData, htfBias: 'Bearish'})} 
-              /> Bearish
-            </label>
+
+        {/* PRE MARKET & SESSION READINESS */}
+        <div className="grid-2">
+          <div className="card">
+            <h2 className="card-title">📋 Pre-Market Analysis</h2>
+            <span className="label-title">HTF BIAS</span>
+            <div className="grid-2">
+              <div 
+                className={`custom-option ${formData.htfBias === 'Bullish' ? 'active-green' : ''}`}
+                onClick={() => setFormData({...formData, htfBias: 'Bullish'})}
+              >
+                🐂 Bullish
+              </div>
+              <div 
+                className={`custom-option ${formData.htfBias === 'Bearish' ? 'active-red' : ''}`}
+                onClick={() => setFormData({...formData, htfBias: 'Bearish'})}
+              >
+                🐻 Bearish
+              </div>
+            </div>
+
+            <span className="label-title">REASONS</span>
+            {['Hunt liquidity', 'Rebalance price P/D', 'Rebalance FVG\'S'].map(r => (
+              <label key={r} className="checkbox-row">
+                <input 
+                  type="checkbox" 
+                  checked={formData.reasons.includes(r)} 
+                  onChange={() => {
+                    const updated = formData.reasons.includes(r) ? formData.reasons.filter(i => i !== r) : [...formData.reasons, r];
+                    setFormData({...formData, reasons: updated});
+                  }} 
+                />
+                <span>{r}</span>
+              </label>
+            ))}
           </div>
 
-          <h4>Reason</h4>
-          {['Hunt liquidity', 'Rebalance price P/D', 'Rebalance FVG\'S'].map(r => (
-            <label key={r} style={{ display: 'block', marginBottom: '5px' }}>
+          <div className="card">
+            <h2 className="card-title">🧠 Market Session Readiness</h2>
+            <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '16px' }}>
+              Mental readiness is mandatory. Ensure you are free from FOMO or emotional trading mindsets.
+            </p>
+            <label className="checkbox-row" style={{ padding: '16px' }}>
               <input 
                 type="checkbox" 
-                checked={formData.reasons.includes(r)} 
-                onChange={() => {
-                  const updated = formData.reasons.includes(r) ? formData.reasons.filter(i => i !== r) : [...formData.reasons, r];
-                  setFormData({...formData, reasons: updated});
-                }} 
-              /> {r}
+                checked={formData.sessionChecks.mentallyReady} 
+                onChange={e => setFormData({...formData, sessionChecks: {...formData.sessionChecks, mentallyReady: e.target.checked}})} 
+              />
+              <span style={{ fontWeight: 'bold' }}>I am mentally ready to trade (Mandatory)</span>
             </label>
-          ))}
-        </fieldset>
+          </div>
+        </div>
 
-        {/* MARKET SESSION READINESS */}
-        <fieldset style={sectionStyle}>
-          <legend style={legendStyle}>🧠 Market Session Readiness</legend>
-          <label style={{ display: 'block' }}>
-            <input 
-              type="checkbox" 
-              checked={formData.sessionChecks.mentallyReady} 
-              onChange={e => setFormData({...formData, sessionChecks: {...formData.sessionChecks, mentallyReady: e.target.checked}})} 
-            /> <b>I am mentally ready to trade (Mandatory)</b>
-          </label>
-        </fieldset>
-
-        {/* 1ST STAGE */}
-        <fieldset style={sectionStyle}>
-          <legend style={legendStyle}>1️⃣ 1ST STAGE</legend>
+        {/* STAGE 1 & STAGE 2 */}
+        <div className="grid-2">
           
-          <h4>🧭 HTF NARRATIVE</h4>
-          <label style={{ marginRight: '15px' }}>
-            <input 
-              type="radio" 
-              name="narrative" 
-              checked={formData.stage1.narrative === 'Bullish'} 
-              onChange={() => setFormData({...formData, stage1: {...formData.stage1, narrative: 'Bullish'}})} 
-            /> Bullish
-          </label>
-          <label>
-            <input 
-              type="radio" 
-              name="narrative" 
-              checked={formData.stage1.narrative === 'Bearish'} 
-              onChange={() => setFormData({...formData, stage1: {...formData.stage1, narrative: 'Bearish'}})} 
-            /> Bearish
-          </label>
+          {/* STAGE 1 */}
+          <div className="card">
+            <h2 className="card-title">1️⃣ STAGE 1: Narrative & Framework</h2>
+            
+            <span className="label-title">🧭 HTF NARRATIVE</span>
+            <div className="grid-2" style={{ marginBottom: '12px' }}>
+              <div 
+                className={`custom-option ${formData.stage1.narrative === 'Bullish' ? 'active-indigo' : ''}`}
+                onClick={() => setFormData({...formData, stage1: {...formData.stage1, narrative: 'Bullish'}})}
+              >
+                Bullish
+              </div>
+              <div 
+                className={`custom-option ${formData.stage1.narrative === 'Bearish' ? 'active-indigo' : ''}`}
+                onClick={() => setFormData({...formData, stage1: {...formData.stage1, narrative: 'Bearish'}})}
+              >
+                Bearish
+              </div>
+            </div>
 
-          <h4>🎯 PREMIUM / DISCOUNT</h4>
-          {['PDH', 'PSH', 'PDL', 'PSL'].map(item => (
-            <label key={item} style={{ marginRight: '15px', display: 'inline-block' }}>
-              <input 
-                type="checkbox" 
-                checked={formData.stage1.pdArray.includes(item)} 
-                onChange={() => handleArrayToggle('stage1', 'pdArray', item)} 
-              /> {item}
-            </label>
-          ))}
+            <span className="label-title">🎯 PREMIUM / DISCOUNT</span>
+            <div className="grid-4" style={{ marginBottom: '12px' }}>
+              {['PDH', 'PSH', 'PDL', 'PSL'].map(item => (
+                <div 
+                  key={item}
+                  className={`custom-option ${formData.stage1.pdArray.includes(item) ? 'active-indigo' : ''}`}
+                  onClick={() => handleArrayToggle('stage1', 'pdArray', item)}
+                >
+                  {item}
+                </div>
+              ))}
+            </div>
 
-          <h4>🗺️ HTF PD ARRAY</h4>
-          {['1H FVG', '4H FVG', 'NWOG/NDOG'].map(item => (
-            <label key={item} style={{ marginRight: '15px', display: 'inline-block' }}>
-              <input 
-                type="checkbox" 
-                checked={formData.stage1.htfPdArray.includes(item)} 
-                onChange={() => handleArrayToggle('stage1', 'htfPdArray', item)} 
-              /> {item}
-            </label>
-          ))}
-        </fieldset>
+            <span className="label-title">🗺️ HTF PD ARRAY</span>
+            <div className="grid-3">
+              {['1H FVG', '4H FVG', 'NWOG/NDOG'].map(item => (
+                <div 
+                  key={item}
+                  className={`custom-option ${formData.stage1.htfPdArray.includes(item) ? 'active-indigo' : ''}`}
+                  onClick={() => handleArrayToggle('stage1', 'htfPdArray', item)}
+                >
+                  {item}
+                </div>
+              ))}
+            </div>
+          </div>
 
-        {/* 2ND STAGE */}
-        <fieldset style={{ ...sectionStyle, opacity: isStage1Complete ? 1 : 0.4 }} disabled={!isStage1Complete}>
-          <legend style={legendStyle}>2️⃣ 2ND STAGE {!isStage1Complete && "(Complete Stage 1)"}</legend>
+          {/* STAGE 2 */}
+          <div className={`card ${!isStage1Complete ? 'disabled-stage' : ''}`}>
+            <h2 className="card-title">2️⃣ STAGE 2: Market Alignment</h2>
+            
+            <span className="label-title">🏛️ 1ST STAGE SSMT</span>
+            <div className="grid-2" style={{ marginBottom: '12px' }}>
+              {['WC SSMT', 'DC SSMT'].map(item => (
+                <div 
+                  key={item}
+                  className={`custom-option ${formData.stage2.ssmt.includes(item) ? 'active-indigo' : ''}`}
+                  onClick={() => handleArrayToggle('stage2', 'ssmt', item)}
+                >
+                  {item}
+                </div>
+              ))}
+            </div>
+
+            <span className="label-title">🕰️ PSP HTF</span>
+            <div className="grid-3" style={{ marginBottom: '12px' }}>
+              {['4H PSP 2:00', '1H PSP 7-8', 'No PSP'].map(item => (
+                <div 
+                  key={item}
+                  className={`custom-option ${formData.stage2.pspHtf.includes(item) ? 'active-indigo' : ''}`}
+                  onClick={() => handleArrayToggle('stage2', 'pspHtf', item)}
+                >
+                  {item}
+                </div>
+              ))}
+            </div>
+
+            <span className="label-title">✅ CLEAN TARGETS</span>
+            <div className="grid-2">
+              {['PDH/PDL', 'Internal liquidity'].map(item => (
+                <div 
+                  key={item}
+                  className={`custom-option ${formData.stage2.cleanTargets.includes(item) ? 'active-indigo' : ''}`}
+                  onClick={() => handleArrayToggle('stage2', 'cleanTargets', item)}
+                >
+                  {item}
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+
+        {/* STAGE 3 */}
+        <div className={`card ${!isStage2Complete ? 'disabled-stage' : ''}`}>
+          <h2 className="card-title">3️⃣ STAGE 3: Execution Mechanics & Risk Protocols</h2>
           
-          <h4>🏛️ 1ST stage SSMT</h4>
-          {['WC SSMT', 'DC SSMT'].map(item => (
-            <label key={item} style={{ marginRight: '15px', display: 'inline-block' }}>
-              <input 
-                type="checkbox" 
-                checked={formData.stage2.ssmt.includes(item)} 
-                onChange={() => handleArrayToggle('stage2', 'ssmt', item)} 
-              /> {item}
-            </label>
-          ))}
+          <div className="grid-2">
+            <div>
+              <span className="label-title">⚡ ENTRY MECHANICS</span>
+              {[
+                { key: 'ssmt90m', label: '⏱️ 90M SSMT Q2-Q3' },
+                { key: 'entryWindow', label: '🚪 Entry 9:30 - 9:50' },
+                { key: 'manipulation', label: '🧨 Manipulation 9:30' },
+                { key: 'psp5m', label: '📍 5M PSP 9:30' },
+                { key: 'entryTechnique5m', label: '🎛️ 5M ENTRY TECHNIQUE' }
+              ].map(item => (
+                <label key={item.key} className="checkbox-row">
+                  <input 
+                    type="checkbox" 
+                    checked={formData.stage3[item.key]} 
+                    onChange={e => setFormData({...formData, stage3: {...formData.stage3, [item.key]: e.target.checked}})} 
+                  />
+                  <span>{item.label}</span>
+                </label>
+              ))}
+            </div>
 
-          <h4>🕰️ PSP HTF</h4>
-          {['4H PSP 2:00', '1H PSP 7-8', 'No PSP'].map(item => (
-            <label key={item} style={{ marginRight: '15px', display: 'inline-block' }}>
-              <input 
-                type="checkbox" 
-                checked={formData.stage2.pspHtf.includes(item)} 
-                onChange={() => handleArrayToggle('stage2', 'pspHtf', item)} 
-              /> {item}
-            </label>
-          ))}
-
-          <h4>✅ Clean targets?</h4>
-          {['PDH/PDL', 'Internal liquidity'].map(item => (
-            <label key={item} style={{ marginRight: '15px', display: 'inline-block' }}>
-              <input 
-                type="checkbox" 
-                checked={formData.stage2.cleanTargets.includes(item)} 
-                onChange={() => handleArrayToggle('stage2', 'cleanTargets', item)} 
-              /> {item}
-            </label>
-          ))}
-        </fieldset>
-
-        {/* 3RD STAGE */}
-        <fieldset style={{ ...sectionStyle, opacity: isStage2Complete ? 1 : 0.4 }} disabled={!isStage2Complete}>
-          <legend style={legendStyle}>3️⃣ 3RD STAGE {!isStage2Complete && "(Complete Stage 2)"}</legend>
-
-          <label style={checkRowStyle}>
-            <input 
-              type="checkbox" 
-              checked={formData.stage3.ssmt90m} 
-              onChange={e => setFormData({...formData, stage3: {...formData.stage3, ssmt90m: e.target.checked}})} 
-            /> ⏱️ 90M SSMT Q2-Q3
-          </label>
-
-          <label style={checkRowStyle}>
-            <input 
-              type="checkbox" 
-              checked={formData.stage3.entryWindow} 
-              onChange={e => setFormData({...formData, stage3: {...formData.stage3, entryWindow: e.target.checked}})} 
-            /> 🚪 Entry 9:30 - 9:50
-          </label>
-
-          <label style={checkRowStyle}>
-            <input 
-              type="checkbox" 
-              checked={formData.stage3.manipulation} 
-              onChange={e => setFormData({...formData, stage3: {...formData.stage3, manipulation: e.target.checked}})} 
-            /> 🧨 Manipulation 9:30
-          </label>
-
-          <label style={checkRowStyle}>
-            <input 
-              type="checkbox" 
-              checked={formData.stage3.psp5m} 
-              onChange={e => setFormData({...formData, stage3: {...formData.stage3, psp5m: e.target.checked}})} 
-            /> 📍 5M PSP 9:30
-          </label>
-
-          <label style={checkRowStyle}>
-            <input 
-              type="checkbox" 
-              checked={formData.stage3.entryTechnique5m} 
-              onChange={e => setFormData({...formData, stage3: {...formData.stage3, entryTechnique5m: e.target.checked}})} 
-            /> 🎛️ 5M ENTRY TECHNIQUE
-          </label>
-
-          <h4>🛡️ Risk management (MANDATORY ALL)</h4>
-          
-          <label style={checkRowStyle}>
-            <input 
-              type="checkbox" 
-              checked={formData.stage3.riskManagement.onePercent} 
-              onChange={e => setFormData({
-                ...formData, 
-                stage3: { ...formData.stage3, riskManagement: { ...formData.stage3.riskManagement, onePercent: e.target.checked } }
-              })} 
-            /> 1%
-          </label>
-
-          <label style={checkRowStyle}>
-            <input 
-              type="checkbox" 
-              checked={formData.stage3.riskManagement.stopLossDefined} 
-              onChange={e => setFormData({
-                ...formData, 
-                stage3: { ...formData.stage3, riskManagement: { ...formData.stage3.riskManagement, stopLossDefined: e.target.checked } }
-              })} 
-            /> Stop loss Above/Below 90min high/low
-          </label>
-
-          <label style={checkRowStyle}>
-            <input 
-              type="checkbox" 
-              checked={formData.stage3.riskManagement.targetRatio} 
-              onChange={e => setFormData({
-                ...formData, 
-                stage3: { ...formData.stage3, riskManagement: { ...formData.stage3.riskManagement, targetRatio: e.target.checked } }
-              })} 
-            /> Target objective 1/2
-          </label>
-
-          <label style={checkRowStyle}>
-            <input 
-              type="checkbox" 
-              checked={formData.stage3.riskManagement.partialsTarget} 
-              onChange={e => setFormData({
-                ...formData, 
-                stage3: { ...formData.stage3, riskManagement: { ...formData.stage3.riskManagement, partialsTarget: e.target.checked } }
-              })} 
-            /> Partials targeting 1/4
-          </label>
-        </fieldset>
+            <div>
+              <span className="label-title">🛡️ RISK MANAGEMENT (MANDATORY ALL)</span>
+              {[
+                { key: 'onePercent', label: '1% Risk Limit Compliant' },
+                { key: 'stopLossDefined', label: 'Stop Loss Above/Below 90min High/Low' },
+                { key: 'targetRatio', label: 'Target Objective 1:2 Minimum' },
+                { key: 'partialsTarget', label: 'Partials Targeting 1:4' }
+              ].map(item => (
+                <label key={item.key} className="checkbox-row">
+                  <input 
+                    type="checkbox" 
+                    checked={formData.stage3.riskManagement[item.key]} 
+                    onChange={e => setFormData({
+                      ...formData, 
+                      stage3: { ...formData.stage3, riskManagement: { ...formData.stage3.riskManagement, [item.key]: e.target.checked } }
+                    })} 
+                  />
+                  <span>{item.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
 
         {/* JOURNAL NOTES */}
-        <fieldset style={sectionStyle}>
-          <legend style={legendStyle}>📝 Post Market & Journal Notes</legend>
+        <div className="card">
+          <h2 className="card-title">📝 Post Market & Journal Notes</h2>
           <textarea 
-            placeholder="Write trade reflections or execution notes..." 
-            style={{ width: '100%', height: '80px', padding: '8px' }}
+            rows="3"
+            placeholder="Write trade reflections, psychological state, or execution notes..." 
             value={formData.journalNotes}
             onChange={e => setFormData({...formData, journalNotes: e.target.value})}
+            className="text-area"
           />
-        </fieldset>
+        </div>
 
         {/* SUBMIT BUTTON */}
         <button 
           type="submit" 
           disabled={!isTradeQualified || loading}
-          style={{
-            width: '100%',
-            padding: '15px',
-            fontSize: '18px',
-            fontWeight: 'bold',
-            color: '#fff',
-            backgroundColor: isTradeQualified ? '#28a745' : '#a9a9a9',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: isTradeQualified ? 'pointer' : 'not-allowed',
-            marginTop: '20px'
-          }}
+          className={`submit-btn ${isTradeQualified && !loading ? 'enabled' : 'disabled'}`}
         >
-          {loading ? "Saving to Google Sheet..." : isTradeQualified ? "✅ EXECUTE & SAVE TRADE" : "🚫 COMPLETE ALL RULES TO UNLOCK"}
+          {loading ? "SAVING TO GOOGLE SHEET..." : isTradeQualified ? "🚀 EXECUTE & SAVE TRADE" : "🚫 COMPLETE ALL RULES TO UNLOCK EXECUTION"}
         </button>
 
       </form>
+
+      {/* DEVELOPER FOOTER */}
+
+      {/* PROFESSIONAL FOOTER */}
+      <footer className="app-footer">
+        <div className="footer-badge">
+          <span>SYSTEM v2.0 • ICT MECHANICAL ENGINE</span>
+        </div>
+        <p className="footer-dev-text">
+          Developed with Precision by <span className="dev-name">Limon</span>
+        </p>
+      </footer>
+
+    
     </div>
   );
 }
-
-const sectionStyle = {
-  border: '1px solid #ccc',
-  borderRadius: '8px',
-  padding: '15px',
-  marginBottom: '20px',
-  backgroundColor: '#fff'
-};
-
-const legendStyle = {
-  fontWeight: 'bold',
-  padding: '0 5px'
-};
-
-const checkRowStyle = {
-  display: 'block',
-  marginBottom: '8px',
-  fontSize: '15px'
-};
