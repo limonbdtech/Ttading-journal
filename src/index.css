@@ -347,57 +347,81 @@ body {
   border-radius: 4px;
   border: 1px solid var(--border-color);
 }
-
-/* MOBILE RESPONSIVENESS & FONT SIZE ADJUSTMENTS */
+/* MOBILE RESPONSIVENESS & OPTIMIZED COMPACT SIZE */
 @media (max-width: 768px) {
   body {
-    padding: 16px 10px;
+    padding: 12px 8px;
   }
 
   .grid-2 {
     grid-template-columns: 1fr;
   }
 
-  /* Increase mobile font size for optimal readability */
   .app-title {
-    font-size: 1.4rem;
+    font-size: 1.25rem;
+  }
+
+  .app-subtitle {
+    font-size: 0.8rem;
   }
 
   .card {
-    padding: 16px;
+    padding: 14px;
+    margin-bottom: 14px;
   }
 
   .card-title {
-    font-size: 1.15rem;
-  }
-
-  .custom-option {
-    padding: 14px 10px;
-    font-size: 1rem; /* Slightly larger for easier mobile tapping */
-  }
-
-  .checkbox-row {
-    padding: 14px 12px;
     font-size: 1rem;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+  }
+
+  /* অপশন বাটনগুলো ছোট ও স্লিম করা হলো */
+  .custom-option {
+    padding: 8px 6px;
+    font-size: 0.85rem;
+    border-radius: 6px;
+  }
+
+  /* চেকবক্স রো কম্প্যাক্ট করা হলো */
+  .checkbox-row {
+    padding: 8px 10px;
+    font-size: 0.85rem;
+    gap: 8px;
+    margin-bottom: 6px;
   }
 
   .checkbox-row input {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
   }
 
   .label-title {
-    font-size: 1rem;
+    font-size: 0.85rem;
+    margin-top: 10px;
+    margin-bottom: 6px;
   }
 
   .submit-btn {
-    padding: 18px;
-    font-size: 1.1rem;
+    padding: 12px;
+    font-size: 0.95rem;
+  }
+
+  .theme-toggle-btn {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+  }
+
+  .status-badge {
+    padding: 6px 10px;
+    font-size: 0.75rem;
   }
 }
 
 @media (max-width: 600px) {
+  /* গ্রিড ৩ ও ৪-এর অপশনগুলো সুন্দরভাবে জায়গা নেওয়ার জন্য */
   .grid-3, .grid-4 {
     grid-template-columns: 1fr 1fr;
+    gap: 8px;
   }
 }
