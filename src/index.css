@@ -1,39 +1,37 @@
+/* DEFAULT (NIGHT MODE / DARK THEME) */
 :root {
-  /* LIGHT MODE (ডিফল্ট লাইট থিম) */
-  --bg-color: #f8fafc;
-  --card-bg: #ffffff;
-  --input-bg: #f1f5f9;
-  --text-main: #0f172a;
-  --text-muted: #475569;
-  --border-color: #cbd5e1;
-  --primary-accent: #0284c7;
-  --accent-green: #059669;
-  --accent-red: #e11d48;
-  --accent-indigo: #4f46e5;
-  --option-bg: #e2e8f0;
-  --option-hover: #cbd5e1;
-  --option-border: #94a3b8;
-  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  --bg-color: #0b0f17;
+  --card-bg: #151c28;
+  --input-bg: #0b0e14;
+  --text-main: #ffffff;
+  --text-muted: #94a3b8;
+  --border-color: #334155;
+  --primary-accent: #38bdf8;
+  --accent-green: #10b981;
+  --accent-red: #f43f5e;
+  --accent-indigo: #6366f1;
+  --option-bg: #1e293b;
+  --option-hover: #334155;
+  --option-border: #475569;
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* SYSTEM DARK MODE (সিস্টেম ডার্ক মোডে অটো সুইচ করবে) */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg-color: #0b0f17;
-    --card-bg: #151c28;
-    --input-bg: #0b0e14;
-    --text-main: #ffffff;
-    --text-muted: #cbd5e1;
-    --border-color: #334155;
-    --primary-accent: #38bdf8;
-    --accent-green: #10b981;
-    --accent-red: #f43f5e;
-    --accent-indigo: #6366f1;
-    --option-bg: #1e293b;
-    --option-hover: #334155;
-    --option-border: #475569;
-    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  }
+/* LIGHT MODE / WHITE THEME (High Contrast & Clear Colors) */
+[data-theme="light"] {
+  --bg-color: #f1f5f9;
+  --card-bg: #ffffff;
+  --input-bg: #f8fafc;
+  --text-main: #0f172a;
+  --text-muted: #334155;
+  --border-color: #cbd5e1;
+  --primary-accent: #0284c7;
+  --accent-green: #047857;
+  --accent-red: #be123c;
+  --accent-indigo: #4338ca;
+  --option-bg: #f8fafc;
+  --option-hover: #e2e8f0;
+  --option-border: #94a3b8;
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 * {
@@ -46,10 +44,10 @@ body {
   background-color: var(--bg-color);
   color: var(--text-main);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 16px; /* ডেক্সটপ ফ্রন্ট সাইজ চমৎকার দেখাবে */
+  font-size: 16px;
   line-height: 1.6;
   padding: 24px 16px;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 .journal-container {
@@ -69,8 +67,15 @@ body {
   margin-bottom: 24px;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .app-title {
-  font-size: 1.75rem; /* ~28px */
+  font-size: 1.75rem;
   color: var(--text-main);
   display: flex;
   align-items: center;
@@ -81,6 +86,23 @@ body {
   font-size: 0.9rem;
   color: var(--text-muted);
   margin-top: 4px;
+}
+
+/* Theme Toggle Button */
+.theme-toggle-btn {
+  background: var(--option-bg);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+  background: var(--option-hover);
 }
 
 .status-badge {
@@ -114,10 +136,16 @@ body {
 }
 
 .card-title {
-  font-size: 1.25rem; /* ~20px */
+  font-size: 1.25rem;
   color: var(--text-main);
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 10px;
+  margin-bottom: 16px;
+}
+
+.readiness-text {
+  font-size: 0.9rem;
+  color: var(--text-muted);
   margin-bottom: 16px;
 }
 
@@ -125,12 +153,6 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
-}
-
-@media (max-width: 768px) {
-  .grid-2 {
-    grid-template-columns: 1fr;
-  }
 }
 
 .grid-3 {
@@ -143,12 +165,6 @@ body {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 10px;
-}
-
-@media (max-width: 600px) {
-  .grid-3, .grid-4 {
-    grid-template-columns: 1fr 1fr;
-  }
 }
 
 /* Inputs & Form Elements */
@@ -177,7 +193,7 @@ body {
   margin-top: 14px;
 }
 
-/* Unselected Options (সিলেক্ট করার আগেই পরিষ্কার দেখা যাবে) */
+/* Unselected Options */
 .custom-option {
   display: flex;
   align-items: center;
@@ -198,12 +214,18 @@ body {
   background: var(--option-hover);
 }
 
-/* Selected States */
+/* Selected States with Higher Contrast for Light Mode */
 .custom-option.active-green {
   background: rgba(16, 185, 129, 0.2);
   border-color: var(--accent-green);
   color: var(--accent-green);
   font-weight: bold;
+}
+
+[data-theme="light"] .custom-option.active-green {
+  background: #d1fae5;
+  border-color: #047857;
+  color: #065f46;
 }
 
 .custom-option.active-red {
@@ -213,11 +235,23 @@ body {
   font-weight: bold;
 }
 
+[data-theme="light"] .custom-option.active-red {
+  background: #ffe4e6;
+  border-color: #be123c;
+  color: #9f1239;
+}
+
 .custom-option.active-indigo {
   background: rgba(99, 102, 241, 0.2);
   border-color: var(--accent-indigo);
   color: var(--accent-indigo);
   font-weight: bold;
+}
+
+[data-theme="light"] .custom-option.active-indigo {
+  background: #e0e7ff;
+  border-color: #4338ca;
+  color: #3730a3;
 }
 
 /* Checkbox Rows */
@@ -273,7 +307,7 @@ body {
   cursor: not-allowed;
 }
 
-/* PROFESSIONAL FOOTER STYLING */
+/* Footer */
 .app-footer {
   text-align: center;
   margin-top: 40px;
@@ -312,4 +346,58 @@ body {
   background: rgba(56, 189, 248, 0.1);
   border-radius: 4px;
   border: 1px solid var(--border-color);
+}
+
+/* MOBILE RESPONSIVENESS & FONT SIZE ADJUSTMENTS */
+@media (max-width: 768px) {
+  body {
+    padding: 16px 10px;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  /* Increase mobile font size for optimal readability */
+  .app-title {
+    font-size: 1.4rem;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .card-title {
+    font-size: 1.15rem;
+  }
+
+  .custom-option {
+    padding: 14px 10px;
+    font-size: 1rem; /* Slightly larger for easier mobile tapping */
+  }
+
+  .checkbox-row {
+    padding: 14px 12px;
+    font-size: 1rem;
+  }
+
+  .checkbox-row input {
+    width: 20px;
+    height: 20px;
+  }
+
+  .label-title {
+    font-size: 1rem;
+  }
+
+  .submit-btn {
+    padding: 18px;
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .grid-3, .grid-4 {
+    grid-template-columns: 1fr 1fr;
+  }
 }

@@ -27,11 +27,32 @@ export default function TradingJournal() {
   const [formData, setFormData] = useState(INITIAL_STATE);
   const [loading, setLoading] = useState(false);
   const [googleScriptUrl, setGoogleScriptUrl] = useState('');
+  
+  // Theme State: Default to 'dark' (Night Mode)
+  const [darkMode, setDarkMode] = useState(() => {
+    const savedTheme = localStorage.getItem('app_theme');
+    return savedTheme ? savedTheme === 'dark' : true;
+  });
 
   useEffect(() => {
     const savedUrl = localStorage.getItem('user_google_script_url');
     if (savedUrl) setGoogleScriptUrl(savedUrl);
   }, []);
+
+  // Sync theme with <html> or <body> attribute
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('app_theme', 'dark');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light');
+      localStorage.setItem('app_theme', 'light');
+    }
+  }, [darkMode]);
+
+  const toggleTheme = () => {
+    setDarkMode(prev => !prev);
+  };
 
   const handleSaveUrl = (url) => {
     setGoogleScriptUrl(url);
@@ -127,14 +148,19 @@ export default function TradingJournal() {
   return (
     <div className="journal-container">
       
-      {/* HEADER */}
+      {/* HEADER WITH THEME TOGGLE BUTTON */}
       <header className="app-header">
         <div>
           <h1 className="app-title">⚡ MECHANICAL TRADING JOURNAL</h1>
           <p className="app-subtitle">ICT / SMC Systematic Execution & Discipline Verification</p>
         </div>
-        <div className={`status-badge ${isTradeQualified ? 'verified' : 'locked'}`}>
-          {isTradeQualified ? "✅ SYSTEM VERIFIED: TRADE ALLOWED" : "🚫 DISCIPLINE LOCK ACTIVE"}
+        <div className="header-actions">
+          <button type="button" onClick={toggleTheme} className="theme-toggle-btn">
+            {darkMode ? '☀️ Light Mode' : '🌙 Night Mode'}
+          </button>
+          <div className={`status-badge ${isTradeQualified ? 'verified' : 'locked'}`}>
+            {isTradeQualified ? "✅ SYSTEM VERIFIED: TRADE ALLOWED" : "🚫 DISCIPLINE LOCK ACTIVE"}
+          </div>
         </div>
       </header>
 
@@ -190,7 +216,7 @@ export default function TradingJournal() {
 
           <div className="card">
             <h2 className="card-title">🧠 Market Session Readiness</h2>
-            <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '16px' }}>
+            <p className="readiness-text">
               Mental readiness is mandatory. Ensure you are free from FOMO or emotional trading mindsets.
             </p>
             <label className="checkbox-row" style={{ padding: '16px' }}>
@@ -372,8 +398,6 @@ export default function TradingJournal() {
 
       </form>
 
-      {/* DEVELOPER FOOTER */}
-
       {/* PROFESSIONAL FOOTER */}
       <footer className="app-footer">
         <div className="footer-badge">
@@ -384,7 +408,6 @@ export default function TradingJournal() {
         </p>
       </footer>
 
-    
     </div>
   );
 }
