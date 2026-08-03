@@ -1,13 +1,39 @@
 :root {
-  --bg-main: #0b0f17;
-  --card-bg: #151c28;
-  --input-bg: #0b0e14;
-  --border-color: #334155; /* বর্ডার আরও স্পষ্ট করা হয়েছে */
-  --text-main: #ffffff;    /* প্রধান টেক্সট সাদা */
-  --text-muted: #cbd5e1;   /* আন-সিলেক্টেড টেক্সট লাইট গ্রে */
-  --accent-green: #10b981;
-  --accent-red: #f43f5e;
-  --accent-indigo: #6366f1;
+  /* LIGHT MODE (ডিফল্ট লাইট থিম) */
+  --bg-color: #f8fafc;
+  --card-bg: #ffffff;
+  --input-bg: #f1f5f9;
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --border-color: #cbd5e1;
+  --primary-accent: #0284c7;
+  --accent-green: #059669;
+  --accent-red: #e11d48;
+  --accent-indigo: #4f46e5;
+  --option-bg: #e2e8f0;
+  --option-hover: #cbd5e1;
+  --option-border: #94a3b8;
+  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* SYSTEM DARK MODE (সিস্টেম ডার্ক মোডে অটো সুইচ করবে) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #0b0f17;
+    --card-bg: #151c28;
+    --input-bg: #0b0e14;
+    --text-main: #ffffff;
+    --text-muted: #cbd5e1;
+    --border-color: #334155;
+    --primary-accent: #38bdf8;
+    --accent-green: #10b981;
+    --accent-red: #f43f5e;
+    --accent-indigo: #6366f1;
+    --option-bg: #1e293b;
+    --option-hover: #334155;
+    --option-border: #475569;
+    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
 }
 
 * {
@@ -17,10 +43,13 @@
 }
 
 body {
-  background-color: var(--bg-main);
+  background-color: var(--bg-color);
   color: var(--text-main);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  padding: 16px;
+  font-size: 16px; /* ডেক্সটপ ফ্রন্ট সাইজ চমৎকার দেখাবে */
+  line-height: 1.6;
+  padding: 24px 16px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .journal-container {
@@ -41,15 +70,15 @@ body {
 }
 
 .app-title {
-  font-size: 24px;
-  color: #fff;
+  font-size: 1.75rem; /* ~28px */
+  color: var(--text-main);
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
 .app-subtitle {
-  font-size: 13px;
+  font-size: 0.9rem;
   color: var(--text-muted);
   margin-top: 4px;
 }
@@ -57,7 +86,7 @@ body {
 .status-badge {
   padding: 8px 16px;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 0.85rem;
   font-weight: bold;
   font-family: monospace;
 }
@@ -74,18 +103,19 @@ body {
   border: 1px solid var(--accent-red);
 }
 
-/* Layout Cards */
+/* Cards */
 .card {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  padding: 20px;
+  padding: 24px;
   margin-bottom: 20px;
+  box-shadow: var(--card-shadow);
 }
 
 .card-title {
-  font-size: 16px;
-  color: #fff;
+  font-size: 1.25rem; /* ~20px */
+  color: var(--text-main);
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 10px;
   margin-bottom: 16px;
@@ -127,37 +157,37 @@ body {
   background: var(--input-bg);
   border: 1px solid var(--border-color);
   color: var(--text-main);
-  padding: 12px;
+  padding: 12px 16px;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 1rem;
 }
 
 .text-input:focus, .text-area:focus {
   outline: none;
-  border-color: var(--accent-indigo);
+  border-color: var(--primary-accent);
 }
 
 .label-title {
   display: block;
-  font-size: 13px;
-  color: #38bdf8; /* হালকা নীল রঙ যাতে টাইটেল সহজে চোখে পড়ে */
+  font-size: 0.95rem;
+  color: var(--primary-accent);
   font-family: monospace;
   font-weight: bold;
   margin-bottom: 8px;
   margin-top: 14px;
 }
 
-/* UNSELECTED BUTTONS/BOXES (সিলেক্ট করার আগের স্টাইল - এখন পরিষ্কার দেখা যাবে) */
+/* Unselected Options (সিলেক্ট করার আগেই পরিষ্কার দেখা যাবে) */
 .custom-option {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 12px;
-  background: #1e293b; /* হালকা ডার্ক ব্যাকগ্রাউন্ড */
-  border: 1.5px solid #475569; /* দৃশ্যমান গ্রে বর্ডার */
+  background: var(--option-bg);
+  border: 1.5px solid var(--option-border);
   border-radius: 8px;
-  color: #f1f5f9; /* শতভাগ স্পষ্ট সাদা-গ্রে ফন্ট */
-  font-size: 13px;
+  color: var(--text-main);
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
   user-select: none;
@@ -165,49 +195,48 @@ body {
 }
 
 .custom-option:hover {
-  border-color: #94a3b8;
-  background: #334155;
+  background: var(--option-hover);
 }
 
-/* SELECTED STATES (সিলেক্ট করার পর স্টাইল) */
+/* Selected States */
 .custom-option.active-green {
-  background: rgba(16, 185, 129, 0.25);
+  background: rgba(16, 185, 129, 0.2);
   border-color: var(--accent-green);
-  color: #34d399;
+  color: var(--accent-green);
   font-weight: bold;
 }
 
 .custom-option.active-red {
-  background: rgba(244, 63, 94, 0.25);
+  background: rgba(244, 63, 94, 0.2);
   border-color: var(--accent-red);
-  color: #fb7185;
+  color: var(--accent-red);
   font-weight: bold;
 }
 
 .custom-option.active-indigo {
-  background: rgba(99, 102, 241, 0.25);
+  background: rgba(99, 102, 241, 0.2);
   border-color: var(--accent-indigo);
-  color: #818cf8;
+  color: var(--accent-indigo);
   font-weight: bold;
 }
 
-/* CHECKBOX ROWS */
+/* Checkbox Rows */
 .checkbox-row {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 12px;
-  background: #1e293b;
-  border: 1px solid #475569;
+  background: var(--option-bg);
+  border: 1px solid var(--option-border);
   border-radius: 8px;
   margin-bottom: 8px;
   cursor: pointer;
-  font-size: 13px;
-  color: #f8fafc; /* একদম পরিষ্কার দৃশ্যমান ফন্ট */
+  font-size: 0.95rem;
+  color: var(--text-main);
 }
 
 .checkbox-row:hover {
-  background: #334155;
+  background: var(--option-hover);
 }
 
 .checkbox-row input {
@@ -217,7 +246,7 @@ body {
 }
 
 .disabled-stage {
-  opacity: 0.3;
+  opacity: 0.35;
   pointer-events: none;
 }
 
@@ -225,7 +254,7 @@ body {
   width: 100%;
   padding: 16px;
   border-radius: 10px;
-  font-size: 15px;
+  font-size: 1.05rem;
   font-weight: bold;
   border: none;
   cursor: pointer;
@@ -235,15 +264,14 @@ body {
 
 .submit-btn.enabled {
   background: var(--accent-green);
-  color: #fff;
+  color: #ffffff;
 }
 
 .submit-btn.disabled {
-  background: #334155;
-  color: #94a3b8;
+  background: var(--option-border);
+  color: var(--text-muted);
   cursor: not-allowed;
 }
-
 
 /* PROFESSIONAL FOOTER STYLING */
 .app-footer {
@@ -261,7 +289,7 @@ body {
 
 .footer-badge {
   font-family: monospace;
-  font-size: 11px;
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 1px;
   color: var(--text-muted);
@@ -272,16 +300,16 @@ body {
 }
 
 .footer-dev-text {
-  font-size: 13px;
+  font-size: 0.9rem;
   color: var(--text-muted);
   font-weight: 500;
 }
 
 .footer-dev-text .dev-name {
-  color: #38bdf8;
+  color: var(--primary-accent);
   font-weight: bold;
   padding: 2px 8px;
   background: rgba(56, 189, 248, 0.1);
   border-radius: 4px;
-  border: 1px solid rgba(56, 189, 248, 0.2);
+  border: 1px solid var(--border-color);
 }
