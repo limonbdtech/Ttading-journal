@@ -16,7 +16,7 @@
   --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* LIGHT MODE / WHITE THEME (High Contrast & Clear Colors) */
+/* LIGHT MODE / WHITE THEME */
 [data-theme="light"] {
   --bg-color: #f1f5f9;
   --card-bg: #ffffff;
@@ -149,6 +149,7 @@ body {
   margin-bottom: 16px;
 }
 
+/* DESKTOP GRIDS (Unchanged) */
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -214,7 +215,7 @@ body {
   background: var(--option-hover);
 }
 
-/* Selected States with Higher Contrast for Light Mode */
+/* Selected States */
 .custom-option.active-green {
   background: rgba(16, 185, 129, 0.2);
   border-color: var(--accent-green);
@@ -254,7 +255,12 @@ body {
   color: #3730a3;
 }
 
-/* Checkbox Rows */
+/* Checkbox Rows & Groups */
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+}
+
 .checkbox-row {
   display: flex;
   align-items: center;
@@ -347,81 +353,77 @@ body {
   border-radius: 4px;
   border: 1px solid var(--border-color);
 }
-/* MOBILE RESPONSIVENESS & OPTIMIZED COMPACT SIZE */
+/* 📱 MOBILE RESPONSIVE FIX (WITH BETTER MARGIN & GAPS) */
 @media (max-width: 768px) {
   body {
     padding: 12px 8px;
   }
 
-  .grid-2 {
-    grid-template-columns: 1fr;
-  }
-
   .app-title {
-    font-size: 1.25rem;
-  }
-
-  .app-subtitle {
-    font-size: 0.8rem;
+    font-size: 1.2rem;
   }
 
   .card {
-    padding: 14px;
-    margin-bottom: 14px;
+    padding: 16px;
+    margin-bottom: 16px;
   }
 
   .card-title {
     font-size: 1rem;
     padding-bottom: 8px;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
   }
 
-  /* অপশন বাটনগুলো ছোট ও স্লিম করা হলো */
+  /* ১. মূল কার্ডগুলো একটির নিচে একটি ফুল উইডথে থাকবে */
+  .grid-2 {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* ২. কার্ডের ভিতরের অপশন ও চেকবক্সের জন্য সুন্দর গ্যাপ (Gap: 12px) */
+  .grid-2 > div > .grid-2, 
+  .grid-3, 
+  .grid-4, 
+  .checkbox-group {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important; /* ৫০% ৫০% */
+    gap: 10px 12px !important; /* কলাম এবং রোর মধ্যে প্রপার গ্যাপ */
+  }
+
+  /* ৩. অপশন বাটন স্টাইলিং */
   .custom-option {
-    padding: 8px 6px;
-    font-size: 0.85rem;
-    border-radius: 6px;
+    padding: 10px 8px;
+    font-size: 0.82rem;
+    border-radius: 8px;
+    text-align: center;
+    white-space: nowrap;
   }
 
-  /* চেকবক্স রো কম্প্যাক্ট করা হলো */
+  /* ৪. চেকবক্স কার্ডগুলোর মার্জিন ও প্যাডিং সমন্বয় */
   .checkbox-row {
-    padding: 8px 10px;
-    font-size: 0.85rem;
+    padding: 10px 10px;
+    font-size: 0.82rem;
     gap: 8px;
-    margin-bottom: 6px;
+    margin-bottom: 0;
+    align-items: center;
+    border-radius: 8px;
   }
 
   .checkbox-row input {
     width: 16px;
     height: 16px;
+    flex-shrink: 0;
   }
 
   .label-title {
     font-size: 0.85rem;
-    margin-top: 10px;
-    margin-bottom: 6px;
+    margin-top: 14px;
+    margin-bottom: 8px;
   }
 
   .submit-btn {
-    padding: 12px;
+    padding: 14px;
     font-size: 0.95rem;
-  }
-
-  .theme-toggle-btn {
-    padding: 6px 10px;
-    font-size: 0.75rem;
-  }
-
-  .status-badge {
-    padding: 6px 10px;
-    font-size: 0.75rem;
-  }
-}
-
-@media (max-width: 600px) {
-  /* গ্রিড ৩ ও ৪-এর অপশনগুলো সুন্দরভাবে জায়গা নেওয়ার জন্য */
-  .grid-3, .grid-4 {
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
   }
 }

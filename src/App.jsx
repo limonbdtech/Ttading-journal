@@ -39,7 +39,6 @@ export default function TradingJournal() {
     if (savedUrl) setGoogleScriptUrl(savedUrl);
   }, []);
 
-  // Sync theme with <html> or <body> attribute
   useEffect(() => {
     if (darkMode) {
       document.documentElement.setAttribute('data-theme', 'dark');
@@ -148,7 +147,7 @@ export default function TradingJournal() {
   return (
     <div className="journal-container">
       
-      {/* HEADER WITH THEME TOGGLE BUTTON */}
+      {/* HEADER */}
       <header className="app-header">
         <div>
           <h1 className="app-title">⚡ MECHANICAL TRADING JOURNAL</h1>
@@ -199,19 +198,21 @@ export default function TradingJournal() {
             </div>
 
             <span className="label-title">REASONS</span>
-            {['Hunt liquidity', 'Rebalance price P/D', 'Rebalance FVG\'S'].map(r => (
-              <label key={r} className="checkbox-row">
-                <input 
-                  type="checkbox" 
-                  checked={formData.reasons.includes(r)} 
-                  onChange={() => {
-                    const updated = formData.reasons.includes(r) ? formData.reasons.filter(i => i !== r) : [...formData.reasons, r];
-                    setFormData({...formData, reasons: updated});
-                  }} 
-                />
-                <span>{r}</span>
-              </label>
-            ))}
+            <div className="checkbox-group">
+              {['Hunt liquidity', 'Rebalance price P/D', 'Rebalance FVG\'S'].map(r => (
+                <label key={r} className="checkbox-row">
+                  <input 
+                    type="checkbox" 
+                    checked={formData.reasons.includes(r)} 
+                    onChange={() => {
+                      const updated = formData.reasons.includes(r) ? formData.reasons.filter(i => i !== r) : [...formData.reasons, r];
+                      setFormData({...formData, reasons: updated});
+                    }} 
+                  />
+                  <span>{r}</span>
+                </label>
+              ))}
+            </div>
           </div>
 
           <div className="card">
@@ -333,44 +334,48 @@ export default function TradingJournal() {
           <div className="grid-2">
             <div>
               <span className="label-title">⚡ ENTRY MECHANICS</span>
-              {[
-                { key: 'ssmt90m', label: '⏱️ 90M SSMT Q2-Q3' },
-                { key: 'entryWindow', label: '🚪 Entry 9:30 - 9:50' },
-                { key: 'manipulation', label: '🧨 Manipulation 9:30' },
-                { key: 'psp5m', label: '📍 5M PSP 9:30' },
-                { key: 'entryTechnique5m', label: '🎛️ 5M ENTRY TECHNIQUE' }
-              ].map(item => (
-                <label key={item.key} className="checkbox-row">
-                  <input 
-                    type="checkbox" 
-                    checked={formData.stage3[item.key]} 
-                    onChange={e => setFormData({...formData, stage3: {...formData.stage3, [item.key]: e.target.checked}})} 
-                  />
-                  <span>{item.label}</span>
-                </label>
-              ))}
+              <div className="checkbox-group">
+                {[
+                  { key: 'ssmt90m', label: '⏱️ 90M SSMT Q2-Q3' },
+                  { key: 'entryWindow', label: '🚪 Entry 9:30 - 9:50' },
+                  { key: 'manipulation', label: '🧨 Manipulation 9:30' },
+                  { key: 'psp5m', label: '📍 5M PSP 9:30' },
+                  { key: 'entryTechnique5m', label: '🎛️ 5M ENTRY TECHNIQUE' }
+                ].map(item => (
+                  <label key={item.key} className="checkbox-row">
+                    <input 
+                      type="checkbox" 
+                      checked={formData.stage3[item.key]} 
+                      onChange={e => setFormData({...formData, stage3: {...formData.stage3, [item.key]: e.target.checked}})} 
+                    />
+                    <span>{item.label}</span>
+                  </label>
+                ))}
+              </div>
             </div>
 
             <div>
               <span className="label-title">🛡️ RISK MANAGEMENT (MANDATORY ALL)</span>
-              {[
-                { key: 'onePercent', label: '1% Risk Limit Compliant' },
-                { key: 'stopLossDefined', label: 'Stop Loss Above/Below 90min High/Low' },
-                { key: 'targetRatio', label: 'Target Objective 1:2 Minimum' },
-                { key: 'partialsTarget', label: 'Partials Targeting 1:4' }
-              ].map(item => (
-                <label key={item.key} className="checkbox-row">
-                  <input 
-                    type="checkbox" 
-                    checked={formData.stage3.riskManagement[item.key]} 
-                    onChange={e => setFormData({
-                      ...formData, 
-                      stage3: { ...formData.stage3, riskManagement: { ...formData.stage3.riskManagement, [item.key]: e.target.checked } }
-                    })} 
-                  />
-                  <span>{item.label}</span>
-                </label>
-              ))}
+              <div className="checkbox-group">
+                {[
+                  { key: 'onePercent', label: '1% Risk Limit Compliant' },
+                  { key: 'stopLossDefined', label: 'Stop Loss Above/Below 90min High/Low' },
+                  { key: 'targetRatio', label: 'Target Objective 1:2 Minimum' },
+                  { key: 'partialsTarget', label: 'Partials Targeting 1:4' }
+                ].map(item => (
+                  <label key={item.key} className="checkbox-row">
+                    <input 
+                      type="checkbox" 
+                      checked={formData.stage3.riskManagement[item.key]} 
+                      onChange={e => setFormData({
+                        ...formData, 
+                        stage3: { ...formData.stage3, riskManagement: { ...formData.stage3.riskManagement, [item.key]: e.target.checked } }
+                      })} 
+                    />
+                    <span>{item.label}</span>
+                  </label>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -398,7 +403,7 @@ export default function TradingJournal() {
 
       </form>
 
-      {/* PROFESSIONAL FOOTER */}
+      {/* FOOTER */}
       <footer className="app-footer">
         <div className="footer-badge">
           <span>SYSTEM v2.0 • ICT MECHANICAL ENGINE</span>
