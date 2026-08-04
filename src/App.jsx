@@ -108,25 +108,48 @@ export default function TradingJournal() {
     return localStorage.getItem('last_trade_time') ? parseInt(localStorage.getItem('last_trade_time')) : null;
   });
 
-  const [cooldownRemaining, setCooldownRemaining] = useState(0);
+  // ⏱️ প্রতি সেকেন্ডে আপডেট হওয়া লাইভ টাইমার স্টেট
+  const [cooldownText, setCooldownText] = useState('');
+  const [isCooldownActive, setIsCooldownActive] = useState(false);
 
-  // 10-Minute Cooldown Timer Logic
+  // ১০ মিনিটের মিলিযেকন্ড (১০ * ৬০ * ১০০০)
+  const COOLDOWN_DURATION_MS = 10 * 60 * 1000;
+
+  // ⏱️ 10-Minute Second-by-Second Realtime Cooldown Logic
   useEffect(() => {
-    if (!lastTradeTime) return;
+    let timerInterval = null;
 
     const checkCooldown = () => {
-      const now = Date.now();
-      const elapsedMinutes = (now - lastTradeTime) / (1000 * 60);
-      if (elapsedMinutes < 10) {
-        setCooldownRemaining(Math.ceil(10 - elapsedMinutes));
+      const savedTime = localStorage.getItem('last_trade_time');
+      if (savedTime) {
+        const timePassed = Date.now() - parseInt(savedTime, 10);
+        const timeLeft = COOLDOWN_DURATION_MS - timePassed;
+
+        if (timeLeft > 0) {
+          setIsCooldownActive(true);
+          
+          // মিনিট ও সেকেন্ড ফরম্যাটিং (09:59)
+          const minutes = Math.floor(timeLeft / (1000 * 60));
+          const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+          const formattedMin = String(minutes).padStart(2, '0');
+          const formattedSec = String(seconds).padStart(2, '0');
+
+          setCooldownText(`${formattedMin}:${formattedSec}`);
+        } else {
+          setIsCooldownActive(false);
+          setCooldownText('');
+          localStorage.removeItem('last_trade_time');
+        }
       } else {
-        setCooldownRemaining(0);
+        setIsCooldownActive(false);
       }
     };
 
-    checkCooldown();
-    const interval = setInterval(checkCooldown, 1000);
-    return () => clearInterval(interval);
+    checkCooldown(); // ইনস্ট্যান্ট চেক
+    timerInterval = setInterval(checkCooldown, 1000); // প্রতি ১ সেকেন্ডে রান হবে
+
+    return () => clearInterval(timerInterval);
   }, [lastTradeTime]);
 
   useEffect(() => {
@@ -228,7 +251,6 @@ export default function TradingJournal() {
 
   // Mechanical Rules Locks
   const isDailyLimitReached = todayTradeCount >= 2;
-  const isCooldownActive = cooldownRemaining > 0;
 
   const isTradeQualified = 
     !isDailyLimitReached &&
@@ -402,6 +424,17 @@ export default function TradingJournal() {
         .code-content { padding: 14px; margin: 0; font-family: monospace; font-size: 0.85rem; color: #38bdf8; max-height: 220px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; }
         .guide-trigger-btn { background: #0284c7; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2); transition: background 0.2s; }
         .guide-trigger-btn:hover { background: #0369a1; }
+        
+        /* ⏱️ টাইমারের ঘড়ির এনিমেশন */
+        @keyframes timerSpin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        .timer-icon-spin {
+          display: inline-block;
+          animation: timerSpin 2s linear infinite;
+        }
+
         @media (max-width: 640px) {
           .modal-overlay { padding: 10px; }
           .modal-card { padding: 20px 16px; max-height: 92vh; border-radius: 12px; }
@@ -804,7 +837,7 @@ export default function TradingJournal() {
           />
         </div>
 
-        {/* SUBMIT BUTTON WITH DYNAMIC DISCIPLINE MESSAGES */}
+        {/* ⏱️ SUBMIT BUTTON WITH REALTIME LIVE COUNTDOWN & SPINNING TIMER */}
         <button 
           type="submit" 
           disabled={!isTradeQualified || loading}
@@ -813,7 +846,11 @@ export default function TradingJournal() {
           {loading ? "SAVING TO GOOGLE SHEET..." 
             : hasWonToday ? "🎉 TARGET ACHIEVED! NO MORE TRADES TODAY" 
             : isDailyLimitReached ? "🚫 DAILY LIMIT REACHED (2/2 TRADES USED)" 
-            : isCooldownActive ? `⏳ COOLING PERIOD: WAIT ${cooldownRemaining} MINS` 
+            : isCooldownActive ? (
+                <span>
+                  <span className="timer-icon-spin">⏳</span> COOLING PERIOD: WAIT {cooldownText} MINS
+                </span>
+              ) 
             : isTradeQualified ? "🚀 EXECUTE & SAVE TRADE" 
             : "🚫 COMPLETE ALL RULES TO UNLOCK EXECUTION"}
         </button>
