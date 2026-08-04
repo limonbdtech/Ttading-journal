@@ -500,7 +500,7 @@ export default function TradingJournal() {
       <header className="app-header">
         <div>
           <h1 className="app-title">⚡ MECHANICAL TRADING JOURNAL</h1>
-          <p className="app-subtitle">ICT / SMC Systematic Execution & Discipline Verification</p>
+          <p className="app-subtitle">ICT Systematic Execution & Discipline Verification</p>
         </div>
         <div className="header-actions">
           <button type="button" onClick={() => setShowGuideModal(true)} className="guide-trigger-btn">
