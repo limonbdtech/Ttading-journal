@@ -91,6 +91,44 @@ export default function TradingJournal() {
     return savedTheme ? savedTheme === 'dark' : true;
   });
 
+  // Daily Trade Tracking & Cooldown Timer States
+  const [todayTradeCount, setTodayTradeCount] = useState(() => {
+    const savedData = JSON.parse(localStorage.getItem('daily_trade_tracker') || '{}');
+    const today = new Date().toDateString();
+    return savedData.date === today ? savedData.count : 0;
+  });
+
+  const [hasWonToday, setHasWonToday] = useState(() => {
+    const savedData = JSON.parse(localStorage.getItem('daily_trade_tracker') || '{}');
+    const today = new Date().toDateString();
+    return savedData.date === today ? savedData.hasWon : false;
+  });
+
+  const [lastTradeTime, setLastTradeTime] = useState(() => {
+    return localStorage.getItem('last_trade_time') ? parseInt(localStorage.getItem('last_trade_time')) : null;
+  });
+
+  const [cooldownRemaining, setCooldownRemaining] = useState(0);
+
+  // 10-Minute Cooldown Timer Logic
+  useEffect(() => {
+    if (!lastTradeTime) return;
+
+    const checkCooldown = () => {
+      const now = Date.now();
+      const elapsedMinutes = (now - lastTradeTime) / (1000 * 60);
+      if (elapsedMinutes < 10) {
+        setCooldownRemaining(Math.ceil(10 - elapsedMinutes));
+      } else {
+        setCooldownRemaining(0);
+      }
+    };
+
+    checkCooldown();
+    const interval = setInterval(checkCooldown, 1000);
+    return () => clearInterval(interval);
+  }, [lastTradeTime]);
+
   useEffect(() => {
     const savedUrl = localStorage.getItem('user_google_script_url');
     if (savedUrl) setGoogleScriptUrl(savedUrl);
@@ -188,7 +226,14 @@ export default function TradingJournal() {
     formData.stage3.riskManagement.stopLossDefined &&
     formData.stage3.riskManagement.targetRatio;
 
+  // Mechanical Rules Locks
+  const isDailyLimitReached = todayTradeCount >= 2;
+  const isCooldownActive = cooldownRemaining > 0;
+
   const isTradeQualified = 
+    !isDailyLimitReached &&
+    !hasWonToday &&
+    !isCooldownActive &&
     formData.htfBias !== '' &&
     formData.sessionChecks.mentallyReady &&
     isStage1Complete &&
@@ -265,6 +310,23 @@ export default function TradingJournal() {
         body: JSON.stringify(payload)
       });
 
+      // Daily Rules Status Update
+      const isWin = window.confirm("🎯 Did this trade hit your TARGET objective (Win)?");
+      const newCount = todayTradeCount + 1;
+      const todayStr = new Date().toDateString();
+      const nowTime = Date.now();
+
+      setTodayTradeCount(newCount);
+      if (isWin) setHasWonToday(true);
+      setLastTradeTime(nowTime);
+
+      localStorage.setItem('daily_trade_tracker', JSON.stringify({
+        date: todayStr,
+        count: newCount,
+        hasWon: isWin || hasWonToday
+      }));
+      localStorage.setItem('last_trade_time', nowTime.toString());
+
       alert("🎉 Trade Execution Journaled Successfully!");
       setFormData(INITIAL_STATE);
     } catch (err) {
@@ -307,7 +369,7 @@ export default function TradingJournal() {
           top: 0; left: 0; right: 0; bottom: 0;
           background: rgba(0, 0, 0, 0.85);
           backdrop-filter: blur(8px);
-          display: flex; justifyContent: center; align-items: center;
+          display: flex; justify-content: center; align-items: center;
           z-index: 99999; padding: 20px;
         }
         .modal-card {
@@ -331,8 +393,8 @@ export default function TradingJournal() {
         .close-btn:hover { color: #ffffff; background: #ef4444; border-color: #ef4444; }
         .guide-step { background: #1e293b; border-left: 5px solid #38bdf8; padding: 18px 22px; border-radius: 0 12px 12px 0; margin-bottom: 18px; }
         .guide-step h4 { margin: 0 0 10px 0; color: #f8fafc; font-size: 1.15rem; font-weight: 700; }
-        .guide-step p, .guide-step ol { margin: 0; font-size: 0.98rem; color: #cbd5e1; line-height: 1.65; }
-        .guide-step ol { padding-left: 20px; }
+        .guide-step p, .guide-step ol, .guide-step ul { margin: 0; font-size: 0.98rem; color: #cbd5e1; line-height: 1.65; }
+        .guide-step ol, .guide-step ul { padding-left: 20px; }
         .code-box-wrapper { position: relative; margin-top: 12px; background: #020617; border: 1px solid #334155; border-radius: 8px; overflow: hidden; }
         .code-header { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 10px 16px; border-bottom: 1px solid #1e293b; font-size: 0.85rem; color: #94a3b8; font-weight: bold; }
         .copy-btn { background: #0284c7; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: bold; transition: background 0.2s; }
@@ -346,7 +408,7 @@ export default function TradingJournal() {
           .modal-title { font-size: 1.15rem; }
           .guide-step { padding: 14px 14px; }
           .guide-step h4 { font-size: 1rem; }
-          .guide-step p, .guide-step ol { font-size: 0.88rem; }
+          .guide-step p, .guide-step ol, .guide-step ul { font-size: 0.88rem; }
           .code-content { font-size: 0.75rem; max-height: 180px; }
         }
       `}</style>
@@ -355,11 +417,11 @@ export default function TradingJournal() {
       <header className="app-header">
         <div>
           <h1 className="app-title">⚡ MECHANICAL TRADING JOURNAL</h1>
-          <p className="app-subtitle">ICT / SMC Systematic Execution & Discipline Verification</p>
+          <p className="app-subtitle">ICT Systematic Execution & Discipline Verification</p>
         </div>
         <div className="header-actions">
           <button type="button" onClick={() => setShowGuideModal(true)} className="guide-trigger-btn">
-            ❓ Rules & Guide
+            📖 Rules & Setup Guide
           </button>
           <button type="button" onClick={toggleTheme} className="theme-toggle-btn">
             {darkMode ? '☀️ Light' : '🌙 Night'}
@@ -370,22 +432,47 @@ export default function TradingJournal() {
         </div>
       </header>
 
-      {/* GUIDE POPUP MODAL */}
+      {/* GUIDE POPUP MODAL WITH COMPLETE ORIGINAL & NEW RULES */}
       {showGuideModal && (
         <div className="modal-overlay" onClick={closeGuideModal}>
           <div className="modal-card" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <span className="modal-title">📖 Setup Guide & Webhook Configuration</span>
+              <span className="modal-title">📖 Setup Guide & System Rules</span>
               <button className="close-btn" onClick={closeGuideModal}>&times;</button>
             </div>
             
             <div style={{ marginBottom: '24px' }}>
+
+              {/* MANDATORY DISCIPLINE RULES */}
+              <div className="guide-step" style={{ borderLeftColor: '#ef4444', marginBottom: '20px' }}>
+                <h4 style={{ color: '#f87171' }}>🛑 Mandatory Discipline & Execution Rules</h4>
+                <ul>
+                  <li><b>১. Daily Trade Limit:</b> দিনে সর্বোচ্চ <b>২টি</b> ট্রেড নেওয়ার অনুমতি রয়েছে। ২টি সম্পন্ন হলে ট্রেড বাটন লক হয়ে যাবে।</li>
+                  <li><b>২. Win & Stop Rule:</b> দিনে ১ম ট্রেডেই যদি আপনার টার্গেট (Win) অর্জিত হয়, তবে উক্ত দিনে <b>আর কোনো ট্রেড নেওয়া যাবে না</b>।</li>
+                  <li><b>৩. Loss Recovery Rule:</b> ১ম ট্রেড Loss হলেই কেবল নিজের ভুল রিভিউ করে দিনে ২য় ট্রেড নেওয়ার অনুমতি থাকবে।</li>
+                  <li><b>৪. 10-Minute Cooling Period:</b> একটি ট্রেড এক্সিকিউট করার পর পরবর্তী ট্রেডের মধ্যে বাধ্যতামূলক <b>১০ মিনিটের গ্যাপ</b> রাখতে হবে (Revenge/FOMO বন্ধ করতে)।</li>
+                </ul>
+              </div>
+
+              {/* MECHANICAL STAGE-BY-STAGE PROCESS */}
+              <div className="guide-step" style={{ borderLeftColor: '#38bdf8', marginBottom: '20px' }}>
+                <h4 style={{ color: '#38bdf8' }}>🧩 Mechanical Workflow Instructions</h4>
+                <ol>
+                  <li><b>Pre-Market Bias & Mental Readiness:</b> আগে বাজার ও নিজের মানসিকভাবে প্রস্তুত থাকা নিশ্চিত করুন।</li>
+                  <li><b>Stage 1 Complete:</b> HTF Narrative, Premium/Discount, এবং HTF PD Array সিলেক্ট না করলে Stage 2 আনলক হবে না।</li>
+                  <li><b>Stage 2 Complete:</b> Stage 1 SMT বা HTF PSP এবং Clean Target সিলেক্ট করলে Stage 3 আনলক হবে।</li>
+                  <li><b>Stage 3 Auto-Sync:</b> Stage 2-এ নির্বাচন করা SMT স্বয়ংক্রিয়ভাবে Stage 3-তে Crossover সিঙ্ক হয়ে যাবে এবং ডায়নামিক লেবেল আপডেট হবে।</li>
+                  <li><b>Risk Management Lock:</b> Entry Mechanics সিলেক্ট করার পর Risk Limits ফিল্ড চালু হবে। Risk 0.5% বা 1% এবং Stop Loss & Target Ratio সিলেক্ট করলেই কেবল সাবমিট বাটন আনলক হবে।</li>
+                </ol>
+              </div>
+
+              {/* GOOGLE SCRIPT SETUP */}
               <div className="guide-step" style={{ borderLeftColor: '#10b981' }}>
                 <h4 style={{ color: '#34d399' }}>📊 Step-by-Step Google Sheet Webhook Setup</h4>
                 <ol>
                   <li>একটি নতুন <b>Google Sheet</b> খুলুন।</li>
                   <li>মেনু থেকে <b>Extensions</b> &gt; <b>Apps Script</b>-এ যান।</li>
-                  <li>সেখানকার ডিফল্ট কোড মুছে নিচের কোডটি কপি করে পেস্ট করুন:</li>
+                  <li>সেখানকার ডিফল্ট কোড সম্পূর্ণ মুছে দিয়ে নিচের আপডেটেড কোডটি পেস্ট করুন:</li>
                 </ol>
 
                 <div className="code-box-wrapper">
@@ -402,9 +489,10 @@ export default function TradingJournal() {
                   <li>ওপরের ডানপাশের <b>Deploy</b> &gt; <b>New deployment</b>-এ ক্লিক করুন।</li>
                   <li>গিয়ার (⚙️) আইকনে চাপ দিয়ে <b>Web app</b> বেছে নিন।</li>
                   <li><b>Who has access:</b> অপশনটি অবশ্যই <b>`Anyone`</b> সেট করুন।</li>
-                  <li><b>Deploy</b> এ চাপ দিয়ে পারমিশন Allow করে দিন এবং প্রাপ্ত <b>Web app URL</b> টি কপি করে অ্যাপের ইনপুট বক্সে পেস্ট করুন।</li>
+                  <li><b>Deploy</b> এ চাপ দিয়ে পারমিশন Allow করে দিন এবং প্রাপ্ত <b>Web app URL</b> টি কপি করে অ্যাপের ইনপুট বক্সে বসিয়ে দিন।</li>
                 </ol>
               </div>
+
             </div>
 
             <button 
@@ -716,13 +804,18 @@ export default function TradingJournal() {
           />
         </div>
 
-        {/* SUBMIT BUTTON */}
+        {/* SUBMIT BUTTON WITH DYNAMIC DISCIPLINE MESSAGES */}
         <button 
           type="submit" 
           disabled={!isTradeQualified || loading}
           className={`submit-btn ${isTradeQualified && !loading ? 'enabled' : 'disabled'}`}
         >
-          {loading ? "SAVING TO GOOGLE SHEET..." : isTradeQualified ? "🚀 EXECUTE & SAVE TRADE" : "🚫 COMPLETE ALL RULES TO UNLOCK EXECUTION"}
+          {loading ? "SAVING TO GOOGLE SHEET..." 
+            : hasWonToday ? "🎉 TARGET ACHIEVED! NO MORE TRADES TODAY" 
+            : isDailyLimitReached ? "🚫 DAILY LIMIT REACHED (2/2 TRADES USED)" 
+            : isCooldownActive ? `⏳ COOLING PERIOD: WAIT ${cooldownRemaining} MINS` 
+            : isTradeQualified ? "🚀 EXECUTE & SAVE TRADE" 
+            : "🚫 COMPLETE ALL RULES TO UNLOCK EXECUTION"}
         </button>
 
       </form>
