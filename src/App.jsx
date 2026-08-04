@@ -85,6 +85,9 @@ export default function TradingJournal() {
   const [googleScriptUrl, setGoogleScriptUrl] = useState('');
   const [showGuideModal, setShowGuideModal] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  // 🎯 Custom Win/Loss Result Modal State
+  const [showResultModal, setShowResultModal] = useState(false);
   
   const [darkMode, setDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem('app_theme');
@@ -112,8 +115,7 @@ export default function TradingJournal() {
   const [cooldownText, setCooldownText] = useState('');
   const [isCooldownActive, setIsCooldownActive] = useState(false);
 
-  // ১০ মিনিটের মিলিযেকন্ড (১০ * ৬০ * ১০০০)
-  const COOLDOWN_DURATION_MS = 10 * 60 * 1000;
+  const COOLDOWN_DURATION_MS = 10 * 60 * 1000; // 10 Minutes
 
   // ⏱️ 10-Minute Second-by-Second Realtime Cooldown Logic
   useEffect(() => {
@@ -127,8 +129,6 @@ export default function TradingJournal() {
 
         if (timeLeft > 0) {
           setIsCooldownActive(true);
-          
-          // মিনিট ও সেকেন্ড ফরম্যাটিং (09:59)
           const minutes = Math.floor(timeLeft / (1000 * 60));
           const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
@@ -146,8 +146,8 @@ export default function TradingJournal() {
       }
     };
 
-    checkCooldown(); // ইনস্ট্যান্ট চেক
-    timerInterval = setInterval(checkCooldown, 1000); // প্রতি ১ সেকেন্ডে রান হবে
+    checkCooldown();
+    timerInterval = setInterval(checkCooldown, 1000);
 
     return () => clearInterval(timerInterval);
   }, [lastTradeTime]);
@@ -290,6 +290,7 @@ export default function TradingJournal() {
     }));
   };
 
+  // Submit Logic
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isTradeQualified) return;
@@ -332,31 +333,38 @@ export default function TradingJournal() {
         body: JSON.stringify(payload)
       });
 
-      // Daily Rules Status Update
-      const isWin = window.confirm("🎯 Did this trade hit your TARGET objective (Win)?");
-      const newCount = todayTradeCount + 1;
-      const todayStr = new Date().toDateString();
-      const nowTime = Date.now();
+      // Data saved to Google Sheet, now show Custom Win/Loss Modal
+      setShowResultModal(true);
 
-      setTodayTradeCount(newCount);
-      if (isWin) setHasWonToday(true);
-      setLastTradeTime(nowTime);
-
-      localStorage.setItem('daily_trade_tracker', JSON.stringify({
-        date: todayStr,
-        count: newCount,
-        hasWon: isWin || hasWonToday
-      }));
-      localStorage.setItem('last_trade_time', nowTime.toString());
-
-      alert("🎉 Trade Execution Journaled Successfully!");
-      setFormData(INITIAL_STATE);
     } catch (err) {
       console.error(err);
       alert("❌ Failed to save trade data.");
     } finally {
       setLoading(false);
     }
+  };
+
+  // 🎯 User Choice Handler for Win / Loss
+  const handleTradeResultSelect = (isWin) => {
+    setShowResultModal(false);
+
+    const newCount = todayTradeCount + 1;
+    const todayStr = new Date().toDateString();
+    const nowTime = Date.now();
+
+    setTodayTradeCount(newCount);
+    if (isWin) setHasWonToday(true);
+    setLastTradeTime(nowTime);
+
+    localStorage.setItem('daily_trade_tracker', JSON.stringify({
+      date: todayStr,
+      count: newCount,
+      hasWon: isWin || hasWonToday
+    }));
+    localStorage.setItem('last_trade_time', nowTime.toString());
+
+    alert("🎉 Trade Execution Journaled Successfully!");
+    setFormData(INITIAL_STATE);
   };
 
   const entryMechanicOptions = [
@@ -435,6 +443,48 @@ export default function TradingJournal() {
           animation: timerSpin 2s linear infinite;
         }
 
+        /* 🎯 Custom Win/Loss Result Popup Box Styling */
+        .result-card {
+          background: #0f172a;
+          border: 2px solid #38bdf8;
+          border-radius: 20px;
+          padding: 30px;
+          max-width: 500px;
+          width: 90%;
+          text-align: center;
+          box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+        }
+        .result-btn-win {
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          color: white;
+          padding: 16px 20px;
+          border-radius: 12px;
+          border: none;
+          font-weight: 800;
+          font-size: 1.1rem;
+          cursor: pointer;
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .result-btn-win:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 20px rgba(16, 185, 129, 0.4);
+        }
+        .result-btn-loss {
+          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+          color: white;
+          padding: 16px 20px;
+          border-radius: 12px;
+          border: none;
+          font-weight: 800;
+          font-size: 1.1rem;
+          cursor: pointer;
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .result-btn-loss:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 20px rgba(239, 68, 68, 0.4);
+        }
+
         @media (max-width: 640px) {
           .modal-overlay { padding: 10px; }
           .modal-card { padding: 20px 16px; max-height: 92vh; border-radius: 12px; }
@@ -464,6 +514,38 @@ export default function TradingJournal() {
           </div>
         </div>
       </header>
+
+      {/* 🎯 CUSTOM WIN / LOSS MODAL POPUP (NEWLY ADDED) */}
+      {showResultModal && (
+        <div className="modal-overlay">
+          <div className="result-card">
+            <h2 style={{ color: '#38bdf8', marginTop: 0, fontSize: '1.6rem' }}>
+              📊 Trade Outcome Verification
+            </h2>
+            <p style={{ color: '#cbd5e1', fontSize: '1.05rem', marginBottom: '24px', lineHeight: '1.5' }}>
+              আপনার ট্রেড ডেটা গুগলের শিটে সেভ হয়েছে! অনুগ্রহ করে আজকের ট্রেডের রেজাল্ট সিলেক্ট করুন:
+            </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '14px' }}>
+              <button 
+                type="button" 
+                onClick={() => handleTradeResultSelect(true)} 
+                className="result-btn-win"
+              >
+                🎯 TARGET HIT (WIN)
+              </button>
+              
+              <button 
+                type="button" 
+                onClick={() => handleTradeResultSelect(false)} 
+                className="result-btn-loss"
+              >
+                🛑 LOSS / BREAK EVEN
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* GUIDE POPUP MODAL WITH COMPLETE ORIGINAL & NEW RULES */}
       {showGuideModal && (
@@ -837,7 +919,7 @@ export default function TradingJournal() {
           />
         </div>
 
-        {/* ⏱️ SUBMIT BUTTON WITH REALTIME LIVE COUNTDOWN & SPINNING TIMER */}
+        {/* SUBMIT BUTTON WITH REALTIME LIVE COUNTDOWN & SPINNING TIMER */}
         <button 
           type="submit" 
           disabled={!isTradeQualified || loading}
