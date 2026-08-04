@@ -86,7 +86,7 @@ export default function TradingJournal() {
   const [showGuideModal, setShowGuideModal] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // 🎯 Custom Win/Loss Result Modal State
+  // Custom Win/Loss Result Modal State
   const [showResultModal, setShowResultModal] = useState(false);
   
   const [darkMode, setDarkMode] = useState(() => {
@@ -115,9 +115,10 @@ export default function TradingJournal() {
   const [cooldownText, setCooldownText] = useState('');
   const [isCooldownActive, setIsCooldownActive] = useState(false);
 
-  const COOLDOWN_DURATION_MS = 10 * 60 * 1000; // 10 Minutes
+  // ⚡ ৫ মিনিটের মিলিযেকন্ড (৫ * ৬০ * ১০০০)
+  const COOLDOWN_DURATION_MS = 5 * 60 * 1000;
 
-  // ⏱️ 10-Minute Second-by-Second Realtime Cooldown Logic
+  // ⏱️ 5-Minute Second-by-Second Realtime Cooldown Logic
   useEffect(() => {
     let timerInterval = null;
 
@@ -344,7 +345,7 @@ export default function TradingJournal() {
     }
   };
 
-  // 🎯 User Choice Handler for Win / Loss
+  // User Choice Handler for Win / Loss
   const handleTradeResultSelect = (isWin) => {
     setShowResultModal(false);
 
@@ -443,7 +444,7 @@ export default function TradingJournal() {
           animation: timerSpin 2s linear infinite;
         }
 
-        /* 🎯 Custom Win/Loss Result Popup Box Styling */
+        /* Custom Win/Loss Result Popup Box Styling */
         .result-card {
           background: #0f172a;
           border: 2px solid #38bdf8;
@@ -500,7 +501,7 @@ export default function TradingJournal() {
       <header className="app-header">
         <div>
           <h1 className="app-title">⚡ MECHANICAL TRADING JOURNAL</h1>
-          <p className="app-subtitle">ICT Systematic Execution & Discipline Verification</p>
+          <p className="app-subtitle">ICT / SMC Systematic Execution & Discipline Verification</p>
         </div>
         <div className="header-actions">
           <button type="button" onClick={() => setShowGuideModal(true)} className="guide-trigger-btn">
@@ -515,7 +516,7 @@ export default function TradingJournal() {
         </div>
       </header>
 
-      {/* 🎯 CUSTOM WIN / LOSS MODAL POPUP (NEWLY ADDED) */}
+      {/* CUSTOM WIN / LOSS MODAL POPUP */}
       {showResultModal && (
         <div className="modal-overlay">
           <div className="result-card">
@@ -547,7 +548,7 @@ export default function TradingJournal() {
         </div>
       )}
 
-      {/* GUIDE POPUP MODAL WITH COMPLETE ORIGINAL & NEW RULES */}
+      {/* GUIDE POPUP MODAL */}
       {showGuideModal && (
         <div className="modal-overlay" onClick={closeGuideModal}>
           <div className="modal-card" onClick={e => e.stopPropagation()}>
@@ -565,7 +566,7 @@ export default function TradingJournal() {
                   <li><b>১. Daily Trade Limit:</b> দিনে সর্বোচ্চ <b>২টি</b> ট্রেড নেওয়ার অনুমতি রয়েছে। ২টি সম্পন্ন হলে ট্রেড বাটন লক হয়ে যাবে।</li>
                   <li><b>২. Win & Stop Rule:</b> দিনে ১ম ট্রেডেই যদি আপনার টার্গেট (Win) অর্জিত হয়, তবে উক্ত দিনে <b>আর কোনো ট্রেড নেওয়া যাবে না</b>।</li>
                   <li><b>৩. Loss Recovery Rule:</b> ১ম ট্রেড Loss হলেই কেবল নিজের ভুল রিভিউ করে দিনে ২য় ট্রেড নেওয়ার অনুমতি থাকবে।</li>
-                  <li><b>৪. 10-Minute Cooling Period:</b> একটি ট্রেড এক্সিকিউট করার পর পরবর্তী ট্রেডের মধ্যে বাধ্যতামূলক <b>১০ মিনিটের গ্যাপ</b> রাখতে হবে (Revenge/FOMO বন্ধ করতে)।</li>
+                  <li><b>৪. 5-Minute Cooling Period:</b> একটি ট্রেড এক্সিকিউট করার পর পরবর্তী ট্রেডের মধ্যে বাধ্যতামূলক <b>৫ মিনিটের গ্যাপ</b> থাকবে (FOMO নিয়ন্ত্রণ ও মুভ ধরা সহজ করতে)।</li>
                 </ul>
               </div>
 
